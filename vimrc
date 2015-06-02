@@ -11,8 +11,8 @@ Plugin 'fatih/vim-go'
 Plugin 'shougo/neocomplete'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'tpope/vim-rails'
-Plugin 'tpope/vim-fugitive.git'
 Plugin 'tpope/vim-haml'
+Plugin 'tpope/vim-fugitive.git'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'mattn/emmet-vim'
 Plugin 'kien/rainbow_parentheses.vim'
@@ -53,6 +53,7 @@ set laststatus=2
 set expandtab
 set tabstop=2 shiftwidth=2 softtabstop=2
 set autoindent
+autocmd BufWritePre * :%s/\s\+$//e
 " Enable copying to clipboard using `CTRL + c`
 map <C-c> y:e ~/clipsongzboard<CR>P:w !pbcopy<CR><CR>:bdelete!<CR>
 
@@ -68,9 +69,8 @@ let g:acp_enableAtStartup = 0
 " Use neocomplete.
 let g:neocomplete#enable_at_startup = 1
 " Use smartcase.
-"let g:neocomplete#enable_smart_case = 1
-" Set minimum syntax keyword length.
-"let g:neocomplete#sources#syntax#min_keyword_length = 3
+let g:neocomplete#enable_smart_case = 1
+let g:neocomplete#sources#syntax#min_keyword_length = 3
 
 
 
