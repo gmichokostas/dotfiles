@@ -25,20 +25,21 @@ alias c='clear'
 alias rm='rm -v'
 alias mv='mv -v'
 alias grep='grep --color=always'
-alias emacs='/Applications/Emacs.app/Contents/MacOS/Emacs "$@"'
 alias updb='sudo /usr/libexec/locate.updatedb'
-alias pg_start="pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start"
-alias pg_stop="pg_ctl -D /usr/local/var/postgres stop -s -m fast"
-alias code="cd Code"
+alias pg_start='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start'
+alias pg_stop='pg_ctl -D /usr/local/var/postgres stop -s -m fast'
+alias code='cd Code'
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset %s%Cgreen%d %C(yellow)(%cr) %Cblue[%an]%Creset' --abbrev-commit --date=relative --all"
-
+alias rlwrap='rlwrap -p green'
+#alias emacs="/usr/local/Cellar/emacs/24.5/Emacs.app/Contents/MacOS/Emacs -nw"
+alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs "$@""
 source ~/.profile
 
 export GOPATH=$HOME/Code/Go
 export PATH="$GOPATH/bin:$PATH"
 export PATH="$PATH:/usr/local/opt/go/libexec/bin"
 
-export PATH=$PATH:/usr/local/share/python:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/george/android-sdk/platform-tools:/Users/george/android-sdk/tools
+export PATH=$PATH:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
 
 
