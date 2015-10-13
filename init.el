@@ -1,7 +1,7 @@
 (require 'package)
 (push '("marmalade" . "http://marmalade-repo.org/packages/")
       package-archives )
-(push '("melpa" . "http://melpa.milkbox.net/packages/")
+(push '("melpa" . "https://melpa.milkbox.net/packages/")
               package-archives)
 
 (package-initialize)
@@ -11,6 +11,8 @@
 
 (defvar my-packages
   '(
+    rainbow-delimiters
+    auto-complete
     paredit
     clojure-mode
     clojure-mode-extra-font-locking
@@ -100,6 +102,12 @@
 (setq web-mode-css-indent-offset 2)
 (setq web-mode-enable-css-colorization t)
 
+;; markdown-mode
+(autoload 'markdown-mode "markdown-mode"
+   "Major mode for editing Markdown files" t)
+(add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
 
 ;; disable auto-save and auto-backup
 (setq auto-save-default nil)
@@ -130,15 +138,6 @@
 ;;(set-terminal-parameter nil 'background-mode 'dark)
 (custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
 (set-face-attribute 'default nil :family "Inconsolata" :height 170)
-
-;; (require 'powerline)
-;; (powerline-default-theme)
-
-;; (require 'moe-theme)
-;; (setq moe-theme-highlight-buffer-id t)
-;; (moe-theme-set-color 'blue)
-;; (powerline-moe-theme)
-;; (moe-dark)
 
 (eval-after-load 'clojure-mode
   '(font-lock-add-keywords

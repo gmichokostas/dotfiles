@@ -25,6 +25,7 @@ Plugin 'scrooloose/NERDTree'
 Plugin 'scrooloose/NERDCommenter'
 Plugin 'scrooloose/syntastic'
 Plugin 'bling/vim-airline'
+Plugin 'slim-template/vim-slim.git'
 call vundle#end()
 
 set noswapfile
@@ -53,6 +54,10 @@ set laststatus=2
 set expandtab
 set tabstop=2 shiftwidth=2 softtabstop=2
 set autoindent
+set modeline
+set tags=./tags;
+set grepprg=ack
+
 autocmd BufWritePre * :%s/\s\+$//e
 " Enable copying to clipboard using `CTRL + c`
 map <C-c> y:e ~/clipsongzboard<CR>P:w !pbcopy<CR><CR>:bdelete!<CR>
@@ -72,7 +77,9 @@ let g:neocomplete#enable_at_startup = 1
 let g:neocomplete#enable_smart_case = 1
 let g:neocomplete#sources#syntax#min_keyword_length = 3
 
-
+" Python
+let python_highlight_all = 1
+autocmd Filetype python setlocal expandtab tabstop=8 shiftwidth=4 softtabstop=4
 
 " clojure
 autocmd BufEnter *.cljs,*.clj,*.cljs.hl RainbowParenthesesActivate
