@@ -58,7 +58,7 @@ export PATH="$GOPATH/bin:$PATH"
 export PATH="$PATH:/usr/local/opt/go/libexec/bin"
 
 # export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
-export PATH="/usr/local/opt/coreutils/libexec/gnubin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
+export PATH="$PATH:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
 export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -91,6 +91,15 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 #
 
+alias rlwrap="rlwrap -p green"
+alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs "$@""
+alias updb='sudo /usr/libexec/locate.updatedb'
+alias c='clear'
+
+alias rm='rm -v'
+alias mv='mv -v'
+alias cp='cp -v'
+
 export EDITOR=/usr/bin/vim
 
-[[ -s "$HOME/.rvm/scripts/rvm"  ]] && . "$HOME/.rvm/scripts/rvm"
+export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
