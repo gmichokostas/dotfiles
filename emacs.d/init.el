@@ -1,8 +1,7 @@
 (require 'package)
-(push '("marmalade" . "http://marmalade-repo.org/packages/")
-      package-archives )
-(push '("melpa" . "https://melpa.milkbox.net/packages/")
-              package-archives)
+
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.milkbox.net/packages/"))
 
 (package-initialize)
 
