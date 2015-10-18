@@ -11,6 +11,7 @@
 
 (defvar my-packages
   '(
+    ensime
     rainbow-delimiters
     auto-complete
     paredit
@@ -96,6 +97,9 @@
 ;; disable ido faces to see flx highlights.
 (setq ido-enable-flex-matching t)
 (setq ido-use-faces nil)
+
+(require 'ensime)
+(add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
 
 ;; web-mode
 (require 'web-mode)
