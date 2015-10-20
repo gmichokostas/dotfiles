@@ -26,6 +26,7 @@ Plugin 'scrooloose/NERDCommenter'
 Plugin 'scrooloose/syntastic'
 Plugin 'bling/vim-airline'
 Plugin 'slim-template/vim-slim.git'
+Plugin 'derekwyatt/vim-scala'
 call vundle#end()
 
 set noswapfile

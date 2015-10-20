@@ -1,7 +1,7 @@
 (require 'package)
 
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.milkbox.net/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
 
 (package-initialize)
 
@@ -10,6 +10,7 @@
 
 (defvar my-packages
   '(
+    scala-mode2
     ensime
     rainbow-delimiters
     auto-complete
@@ -162,3 +163,15 @@
                      (0 (progn (compose-region (match-beginning 1)
                                                (match-end 1) "∈")
                                nil))))))
+(add-hook 'scala-mode-hook '(lambda ()
+  (require 'whitespace)
+
+  ;; clean-up whitespace at save
+  (make-local-variable 'before-save-hook)
+  (add-hook 'before-save-hook 'whitespace-cleanup)
+
+  ;; turn on highlight. To configure what is highlighted, customize
+  ;; the *whitespace-style* variable. A sane set of things to
+  ;; highlight is: face, tabs, trailing
+  (whitespace-mode)
+))
