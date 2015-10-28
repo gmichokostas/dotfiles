@@ -27,6 +27,7 @@ Plugin 'scrooloose/syntastic'
 Plugin 'bling/vim-airline'
 Plugin 'slim-template/vim-slim.git'
 Plugin 'derekwyatt/vim-scala'
+Plugin 'kien/ctrlp.vim'
 call vundle#end()
 
 set noswapfile
@@ -54,6 +55,7 @@ set smartcase
 set laststatus=2
 set expandtab
 set tabstop=2 shiftwidth=2 softtabstop=2
+set backspace=indent,eol,start
 set autoindent
 set modeline
 set tags=./tags;

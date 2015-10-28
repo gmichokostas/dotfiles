@@ -43,6 +43,13 @@
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (show-paren-mode)
 
+;; Set default font
+(set-face-attribute 'default nil
+                    :family "Source Code Pro"
+                    :height 140
+                    :weight 'normal
+                    :width 'normal)
+
 ;; Indentation
 (setq-default c-basic-indent 2)
 (setq-default tab-width 2)          ;; set tw=2
@@ -140,8 +147,6 @@
 ;;(load-theme 'solarized t)
 ;;(set-frame-parameter nil 'background-mode 'dark)
 ;;(set-terminal-parameter nil 'background-mode 'dark)
-(custom-set-faces (if (not window-system) '(default ((t (:background "nil"))))))
-(set-face-attribute 'default nil :family "Inconsolata" :height 170)
 
 (eval-after-load 'clojure-mode
   '(font-lock-add-keywords
