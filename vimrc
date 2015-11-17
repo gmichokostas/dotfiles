@@ -28,6 +28,7 @@ Plugin 'bling/vim-airline'
 Plugin 'slim-template/vim-slim.git'
 Plugin 'derekwyatt/vim-scala'
 Plugin 'kien/ctrlp.vim'
+Plugin 'msanders/snipmate.vim'
 call vundle#end()
 
 set noswapfile
@@ -131,7 +132,7 @@ autocmd InsertLeave * match ExtraWhitespace /\s\+$/
 autocmd BufWinLeave * call clearmatches()
 
 
-" PowerLine
+" AirLine
 let g:airline#extensions#tabline#enabled = 1
 "let g:airline#extensions#tabline#left_sep = '>'
 let g:airline_symbols = {}
