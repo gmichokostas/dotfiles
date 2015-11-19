@@ -29,6 +29,7 @@ Plugin 'slim-template/vim-slim.git'
 Plugin 'derekwyatt/vim-scala'
 Plugin 'kien/ctrlp.vim'
 Plugin 'msanders/snipmate.vim'
+Plugin 'pangloss/vim-javascript'
 call vundle#end()
 
 set noswapfile
