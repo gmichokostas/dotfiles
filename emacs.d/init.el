@@ -10,6 +10,7 @@
 
 (defvar my-packages
   '(
+    slim-mode
     scala-mode2
     ensime
     rainbow-delimiters
@@ -25,6 +26,11 @@
     flx-ido
     geiser
     highlight-parentheses
+    magit
+    rinari
+    coffee-mode
+    yaml-mode
+    ruby-mode
     ))
 
 (if (eq system-type 'darwin)
@@ -42,6 +48,8 @@
 (setq inhibit-startup-message t)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (show-paren-mode)
+;; Enable copy/past-ing from clipboard
+(setq x-select-enable-clipboard t)
 
 ;; Set default font
 (set-face-attribute 'default nil
@@ -112,6 +120,9 @@
 (require 'web-mode)
 (setq web-mode-css-indent-offset 2)
 (setq web-mode-enable-css-colorization t)
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.haml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.slim\\'" . web-mode))
 
 ;; markdown-mode
 (autoload 'markdown-mode "markdown-mode"
@@ -138,15 +149,16 @@
 (global-linum-mode t)
 (global-hl-line-mode +1)
 (set-face-foreground 'highlight nil)
+(setq linum-format "%4d ")
 
 ;; aliases
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-(load-theme 'solarized-dark t)
-(setq solarized-use-less-bold t)
-;;(load-theme 'solarized t)
-;;(set-frame-parameter nil 'background-mode 'dark)
-;;(set-terminal-parameter nil 'background-mode 'dark)
+;; (load-theme 'solarized-dark t)
+;; (setq solarized-use-less-bold t)
+(load-theme 'spacemacs-dark t)
+;; (set-frame-parameter nil 'background-mode 'dark)
+;; (set-terminal-parameter nil 'background-mode 'dark)
 
 (eval-after-load 'clojure-mode
   '(font-lock-add-keywords
@@ -180,3 +192,17 @@
   ;; highlight is: face, tabs, trailing
   (whitespace-mode)
 ))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (spacemacs-theme slim-mode zenburn-theme web-mode solarized-theme rainbow-delimiters projectile paredit markdown-mode json-reformat highlight-parentheses goto-last-change geiser flx-ido exec-path-from-shell evil ensime color-theme-solarized clojure-mode-extra-font-locking cider))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
