@@ -64,8 +64,12 @@ set tags=./tags;
 set grepprg=ack
 
 autocmd BufWritePre * :%s/\s\+$//e
+
 " Enable copying to clipboard using `CTRL + c`
 map <C-c> y:e ~/clipsongzboard<CR>P:w !pbcopy<CR><CR>:bdelete!<CR>
+
+" check check for markdown files
+autocmd BufRead,BufNewFile *.md,*.markdown setlocal spell
 
 let g:go_fmt_fail_silently = 1
 let g:go_fmt_command = "goimports"
@@ -131,6 +135,11 @@ autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
 autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 autocmd InsertLeave * match ExtraWhitespace /\s\+$/
 autocmd BufWinLeave * call clearmatches()
+
+" navigate between buffers
+map gn :bn<cr>
+map gp :bp<cr>
+map gd :bd<cr>
 
 
 " AirLine
