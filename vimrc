@@ -32,6 +32,7 @@ Plugin 'kien/ctrlp.vim'
 Plugin 'msanders/snipmate.vim'
 Plugin 'pangloss/vim-javascript'
 Plugin 'chriskempson/base16-vim'
+Plugin 'tpope/vim-commentary'
 call vundle#end()
 
 set noswapfile
