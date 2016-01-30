@@ -13,6 +13,7 @@ Plugin 'plasticboy/vim-markdown'
 Plugin 'tpope/vim-rails'
 Plugin 'tpope/vim-haml'
 Plugin 'tpope/vim-fugitive.git'
+Plugin 'tpope/vim-surround'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'mattn/emmet-vim'
 Plugin 'kien/rainbow_parentheses.vim'
@@ -30,14 +31,18 @@ Plugin 'derekwyatt/vim-scala'
 Plugin 'kien/ctrlp.vim'
 Plugin 'msanders/snipmate.vim'
 Plugin 'pangloss/vim-javascript'
+Plugin 'chriskempson/base16-vim'
 call vundle#end()
 
 set noswapfile
 set ruler
 set cursorline
 syntax enable
+
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 set background=dark
-colorscheme solarized
+colorscheme base16-ocean  "solarized
+
 set encoding=utf-8
 set mouse=a
 set showcmd
