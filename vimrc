@@ -31,7 +31,6 @@ Plugin 'derekwyatt/vim-scala'
 Plugin 'kien/ctrlp.vim'
 Plugin 'msanders/snipmate.vim'
 Plugin 'pangloss/vim-javascript'
-Plugin 'chriskempson/base16-vim'
 Plugin 'tpope/vim-commentary'
 call vundle#end()
 
@@ -40,9 +39,8 @@ set ruler
 set cursorline
 syntax enable
 
-let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 set background=dark
-colorscheme base16-ocean  "solarized
+colorscheme solarized
 
 set encoding=utf-8
 set mouse=a
