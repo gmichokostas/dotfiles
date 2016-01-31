@@ -26,12 +26,14 @@ Plugin 'scrooloose/NERDTree'
 Plugin 'scrooloose/NERDCommenter'
 Plugin 'scrooloose/syntastic'
 Plugin 'bling/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
 Plugin 'slim-template/vim-slim.git'
 Plugin 'derekwyatt/vim-scala'
 Plugin 'kien/ctrlp.vim'
 Plugin 'msanders/snipmate.vim'
 Plugin 'pangloss/vim-javascript'
 Plugin 'tpope/vim-commentary'
+Plugin 'tpope/vim-endwise'
 call vundle#end()
 
 set noswapfile
