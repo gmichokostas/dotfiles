@@ -1,4 +1,3 @@
-set nocompatible
 filetype off
 
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -7,7 +6,6 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'kchmck/vim-coffee-script'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'vim-ruby/vim-ruby'
-Plugin 'fatih/vim-go'
 Plugin 'shougo/neocomplete'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'tpope/vim-rails'
@@ -16,9 +14,6 @@ Plugin 'tpope/vim-fugitive.git'
 Plugin 'tpope/vim-surround'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'mattn/emmet-vim'
-Plugin 'kien/rainbow_parentheses.vim'
-Plugin 'guns/vim-clojure-static'
-Plugin 'tpope/vim-fireplace'
 Plugin 'tpope/vim-repeat'
 Plugin 'guns/vim-sexp'
 Plugin 'airblade/vim-gitgutter'
@@ -34,11 +29,17 @@ Plugin 'msanders/snipmate.vim'
 Plugin 'pangloss/vim-javascript'
 Plugin 'tpope/vim-commentary'
 Plugin 'tpope/vim-endwise'
+Plugin 'elixir-lang/vim-elixir'
+Plugin 'eagletmt/ghcmod-vim'
+Plugin 'keith/swift.vim'
+Plugin 'fatih/vim-go'
+" Plugin 'yggdroot/indentline'
 call vundle#end()
 
 set noswapfile
 set ruler
 set cursorline
+set scrolloff=3
 syntax enable
 
 set background=dark
@@ -53,8 +54,11 @@ set ttyfast
 set title
 set number
 filetype plugin indent on
-set list
-set listchars=tab:..,trail:.,extends:#,nbsp:.
+
+let blacklist = ['go']
+autocmd BufWritePre * if index(blacklist, &ft) < 0 | set listchars=tab:..,trail:.,extends:#,nbsp:.
+autocmd BufWritePre * if index(blacklist, &ft) < 0 | set list
+
 set nowrap
 set hlsearch
 set incsearch
@@ -77,14 +81,7 @@ map <C-c> y:e ~/clipsongzboard<CR>P:w !pbcopy<CR><CR>:bdelete!<CR>
 " check check for markdown files
 autocmd BufRead,BufNewFile *.md,*.markdown setlocal spell
 
-let g:go_fmt_fail_silently = 1
-let g:go_fmt_command = "goimports"
-let g:go_fmt_autosave = 0
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_structs = 1
-let g:go_disable_autoinstall = 0
-"Disable AutoComplPop.
+" Disable AutoComplPop.
 let g:acp_enableAtStartup = 0
 " Use neocomplete.
 let g:neocomplete#enable_at_startup = 1
@@ -95,32 +92,6 @@ let g:neocomplete#sources#syntax#min_keyword_length = 3
 " Python
 let python_highlight_all = 1
 autocmd Filetype python setlocal expandtab tabstop=8 shiftwidth=4 softtabstop=4
-
-" clojure
-autocmd BufEnter *.cljs,*.clj,*.cljs.hl RainbowParenthesesActivate
-autocmd BufEnter *.cljs,*.clj,*.cljs.hl RainbowParenthesesLoadRound
-autocmd BufEnter *.cljs,*.clj,*.cljs.hl RainbowParenthesesLoadSquare
-autocmd BufEnter *.cljs,*.clj,*.cljs.hl RainbowParenthesesLoadBraces
-autocmd BufEnter *.cljs,*.clj,*.cljs.hl setlocal iskeyword+=?,-,*,!,+,/,=,<,>,.,:
-
-let g:rbpt_colorpairs = [
-	\ ['darkyellow',  'RoyalBlue3'],
-	\ ['darkgreen',   'SeaGreen3'],
-	\ ['darkcyan',    'DarkOrchid3'],
-	\ ['Darkblue',    'firebrick3'],
-	\ ['DarkMagenta', 'RoyalBlue3'],
-	\ ['darkred',     'SeaGreen3'],
-	\ ['darkyellow',  'DarkOrchid3'],
-	\ ['darkgreen',   'firebrick3'],
-	\ ['darkcyan',    'RoyalBlue3'],
-	\ ['Darkblue',    'SeaGreen3'],
-	\ ['DarkMagenta', 'DarkOrchid3'],
-	\ ['Darkblue',    'firebrick3'],
-	\ ['darkcyan',    'SeaGreen3'],
-	\ ['darkgreen',   'RoyalBlue3'],
-	\ ['darkyellow',  'DarkOrchid3'],
-	\ ['darkred',     'firebrick3'],
-	\ ]
 
 "set statusline=%F%m%r%h%w\
 "set statusline+=%{fugitive#statusline()}\
@@ -147,7 +118,6 @@ map gn :bn<cr>
 map gp :bp<cr>
 map gd :bd<cr>
 
-
 " AirLine
 let g:airline#extensions#tabline#enabled = 1
 "let g:airline#extensions#tabline#left_sep = '>'
@@ -159,3 +129,21 @@ let g:airline_right_alt_sep = ''
 let g:airline_symbols.branch = ''
 let g:airline_symbols.readonly = ''
 let g:airline_symbols.linenr = ''
+
+let $PATH = $PATH . ':' . expand('~/.local/bin')
+
+" let g:indentLine_char = '¦'
+" let g:indentLine_leadingSpaceEnabled = 1
+" let g:indentLine_leadingSpaceChar = '·'
+
+" Go section
+autocmd Filetype go setlocal ts=4 sts=4 sw=4
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_types = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_build_constraints = 1
+let g:go_fmt_command = "goimports"
+let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
+let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
