@@ -1,10 +1,12 @@
-# Path to your oh-my-zsh installation.
-export ZSH=/Users/george/.oh-my-zsh
+# If you come from bash you might have to change your $PATH.
+# export PATH=$HOME/bin:/usr/local/bin:$PATH
 
-# Set name of the theme to load.
-# Look in ~/.oh-my-zsh/themes/
-# Optionally, if you set this to "random", it'll load a random theme each
-# time that oh-my-zsh is loaded.
+# Path to your oh-my-zsh installation.
+export ZSH=/Users/nrg/.oh-my-zsh
+
+# Set name of the theme to load. Optionally, if you set this to "random"
+# it'll load a random theme each time that oh-my-zsh is loaded.
+# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ZSH_THEME="pygmalion"
 
 # Uncomment the following line to use case-sensitive completion.
@@ -49,26 +51,17 @@ ZSH_THEME="pygmalion"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git osx ruby brew brew-cask github cp git-prompt lein postgres rvm tmux golang history history-substring-search)
+plugins=(git osx ruby golang brew brew-cask github cp git-prompt postgres rvm bundler history history-substring-search docker)
 
-# User configuration
-
-fpath=(/usr/local/share/zsh-completions $fpath)
-
-export GOPATH=$HOME/Code/Go
-export PATH="$GOPATH/bin:$PATH"
-export PATH="$PATH:/usr/local/opt/go/libexec/bin"
-
-export PATH="$PATH:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Users/george/anaconda/bin"
-#export PATH="$PATH:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
-
-# export MANPATH="/usr/local/man:$MANPATH"
 
 source $ZSH/oh-my-zsh.sh
 
+# User configuration
+
+# export MANPATH="/usr/local/man:$MANPATH"
+
 # You may need to manually set your language environment
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
+# export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -81,7 +74,7 @@ export LANG=en_US.UTF-8
 # export ARCHFLAGS="-arch x86_64"
 
 # ssh
-# export SSH_KEY_PATH="~/.ssh/dsa_id"
+# export SSH_KEY_PATH="~/.ssh/rsa_id"
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
@@ -91,19 +84,21 @@ export LANG=en_US.UTF-8
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-#
-
-alias rlwrap="rlwrap -p green"
-alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs "$@""
-alias updb='sudo /usr/libexec/locate.updatedb'
 alias c='clear'
-
 alias rm='rm -v'
-alias mv='mv -v'
 alias cp='cp -v'
-alias n='nano'
-alias vim='nvim'
+alias mv='mv -v'
+alias rlwrap="rlwrap -p green"
 
 export EDITOR=/usr/bin/vim
+
+# enable italics
+export TERM=xterm-256color-italic
+
+# Golang
+export GOPATH=$HOME/go
+export PATH=$PATH:/usr/local/opt/go/libexec/bin
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
 
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
