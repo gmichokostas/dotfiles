@@ -12,6 +12,8 @@ Plugin 'tpope/vim-rails'
 Plugin 'tpope/vim-haml'
 Plugin 'tpope/vim-fugitive.git'
 Plugin 'tpope/vim-surround'
+Plugin 'tpope/vim-endwise'
+Plugin 'tpope/vim-commentary'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'mattn/emmet-vim'
 Plugin 'tpope/vim-repeat'
@@ -23,18 +25,14 @@ Plugin 'scrooloose/syntastic'
 Plugin 'bling/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'slim-template/vim-slim.git'
-Plugin 'derekwyatt/vim-scala'
 Plugin 'kien/ctrlp.vim'
 Plugin 'msanders/snipmate.vim'
 Plugin 'pangloss/vim-javascript'
-Plugin 'tpope/vim-commentary'
-Plugin 'tpope/vim-endwise'
-Plugin 'elixir-lang/vim-elixir'
-Plugin 'eagletmt/ghcmod-vim'
-Plugin 'keith/swift.vim'
 Plugin 'fatih/vim-go'
 Plugin 'joshdick/onedark.vim'
 Plugin 'sheerun/vim-polyglot'
+Plugin 'rizzatti/dash.vim'
+Plugin 'mileszs/ack.vim'
 " Plugin 'yggdroot/indentline'
 call vundle#end()
 
@@ -42,6 +40,7 @@ set noswapfile
 set ruler
 set cursorline
 set scrolloff=3
+set completeopt=menu
 syntax enable
 
 " one dark config
@@ -61,9 +60,6 @@ set title
 set number
 filetype plugin indent on
 
-let blacklist = ['go']
-autocmd BufWritePre * if index(blacklist, &ft) < 0 | set listchars=tab:..,trail:.,extends:#,nbsp:.
-autocmd BufWritePre * if index(blacklist, &ft) < 0 | set list
 
 set nowrap
 set hlsearch
@@ -75,9 +71,13 @@ set expandtab
 set tabstop=2 shiftwidth=2 softtabstop=2
 set backspace=indent,eol,start
 set autoindent
+set autoread
 set modeline
 set tags=./tags;
-set grepprg=ack
+
+if executable('ag')
+  let g:ackprg='ag --vimgrep'
+endif
 
 autocmd BufWritePre * :%s/\s\+$//e
 
@@ -148,20 +148,27 @@ let g:go_highlight_functions = 1
 let g:go_highlight_methods = 1
 let g:go_highlight_fields = 1
 let g:go_highlight_types = 1
+let g:go_highlight_extra_types = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
 let g:go_fmt_command = "goimports"
+let g:go_fmt_autosave = 1
 let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
 let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
+
+function! StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+
+autocmd BufWritePre * :call StripTrailingWhitespaces()
 
 "Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
 "If you're using tmux version 2.2 or later, you can remove the outermost $TMUX check and use tmux's 24-bit color support
 "(see < http://sunaku.github.io/tmux-24bit-color.html#usage > for more information.)
 if (empty($TMUX))
- if (has("nvim"))
-   "For Neovim 0.1.3 and 0.1.4 < https://github.com/neovim/neovim/pull/2198 >
-   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
- endif
  "For Neovim > 0.1.5 and Vim > patch 7.4.1799 < https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162 >
  "Based on Vim patch 7.4.1770 (`guicolors` option) < https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd >
  " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
