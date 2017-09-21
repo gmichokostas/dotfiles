@@ -3,13 +3,11 @@ filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
-Plugin 'kchmck/vim-coffee-script'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'vim-ruby/vim-ruby'
 Plugin 'shougo/neocomplete'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'tpope/vim-rails'
-Plugin 'tpope/vim-haml'
 Plugin 'tpope/vim-fugitive.git'
 Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-endwise'
@@ -24,16 +22,13 @@ Plugin 'scrooloose/NERDCommenter'
 Plugin 'scrooloose/syntastic'
 Plugin 'bling/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
-Plugin 'slim-template/vim-slim.git'
 Plugin 'kien/ctrlp.vim'
 Plugin 'msanders/snipmate.vim'
 Plugin 'pangloss/vim-javascript'
 Plugin 'fatih/vim-go'
 Plugin 'joshdick/onedark.vim'
 Plugin 'sheerun/vim-polyglot'
-Plugin 'rizzatti/dash.vim'
 Plugin 'mileszs/ack.vim'
-" Plugin 'yggdroot/indentline'
 call vundle#end()
 
 set noswapfile
