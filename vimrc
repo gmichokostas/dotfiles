@@ -3,6 +3,7 @@ filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
+Plugin 'lervag/vimtex'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'vim-ruby/vim-ruby'
 Plugin 'shougo/neocomplete'
@@ -93,6 +94,10 @@ let g:neocomplete#sources#syntax#min_keyword_length = 3
 " Python
 let python_highlight_all = 1
 autocmd Filetype python setlocal expandtab tabstop=8 shiftwidth=4 softtabstop=4
+
+" C++
+autocmd Filetype cpp setlocal ts=4 sts=4 sw=4
+autocmd FileType c,cpp setlocal equalprg=clang-format\ -style=Webkit
 
 "set statusline=%F%m%r%h%w\
 "set statusline+=%{fugitive#statusline()}\
