@@ -1,208 +1,147 @@
+;; Package configs
 (require 'package)
-
-(add-to-list 'package-archives '("melpa" . "https://melpa.milkbox.net/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
-
+(setq package-enable-at-startup nil)
+(setq package-archives '(("org"   . "http://orgmode.org/elpa/")
+                         ("gnu"   . "http://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
 
-(when (not package-archive-contents)
-  (package-refresh-contents))
+;; Bootstrap `use-package`
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
-(defvar my-packages
-  '(
-    slim-mode
-    scala-mode2
-    ensime
-    rainbow-delimiters
-    auto-complete
-    paredit
-    clojure-mode
-    clojure-mode-extra-font-locking
-    cider
-    projectile
-    evil
-    web-mode
-    solarized-theme
-    flx-ido
-    geiser
-    highlight-parentheses
-    magit
-    rinari
-    coffee-mode
-    yaml-mode
-    ruby-mode
-    ))
+(require 'use-package)
 
-(if (eq system-type 'darwin)
-    (add-to-list 'my-packages 'exec-path-from-shell))
+(when (eq system-type 'darwin)
+  (setq mac-option-key-is-meta nil ;; rebind Meta key to cmd
+	mac-command-key-is-meta t
+	mac-command-modifier 'meta
+	mac-option-modifier 'none))
 
-(dolist (p my-packages)
-  (when (not (package-installed-p p))
-    (package-install p)))
+;; general editor settings
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+(global-display-line-numbers-mode t)
+(global-hl-line-mode t)
 
-
+;; UI
 (menu-bar-mode -1)
 (tool-bar-mode -1)
+(tooltip-mode -1)
 (scroll-bar-mode -1)
-(setq ring-bell-function 'ignore)
+(set-frame-font "Menlo 13")
+(setq column-number-mode t)
+(setq display-line-numbers-grow-only t)
 (setq inhibit-startup-message t)
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
+(setq ring-bell-function 'ignore)
 (show-paren-mode)
-;; Enable copy/past-ing from clipboard
-(setq x-select-enable-clipboard t)
 
-;; Set default font
-(set-face-attribute 'default nil
-                    :family "Source Code Pro"
-                    :height 140
-                    :weight 'normal
-                    :width 'normal)
+;; titlebar for MacOS
+(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+(add-to-list 'default-frame-alist '(ns-appearance . dark))
+(setq ns-use-proxy-icon  nil)
+(setq frame-title-format nil)
 
-;; Indentation
-(setq-default c-basic-indent 2)
-(setq-default tab-width 2)          ;; set tw=2
-(setq-default indent-tabs-mode nil) ;; set expandtab
+;; packages
 
-;; auto-complete
-(require 'auto-complete)
-(require 'auto-complete-config)
-(setq ac-auto-show-menu t)
-(setq ac-auto-start t)
-(setq ac-quick-help-delay 0.3)
-(setq ac-quick-help-height 30)
-(setq ac-show-menu-immediately-on-auto-complete t)
-(ac-config-default)
+(use-package doom-themes
+  :ensure t
+  :config (load-theme 'doom-one t))
 
-(evil-mode)
+(use-package cider
+  :ensure t
+  :config (setq cider-repl-use-pretty-printing t))
 
-;; rainbow
-(require 'rainbow-delimiters)
-(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+(use-package clojure-mode
+  :ensure t
+  :mode (("\\.clj\\'" . clojure-mode)
+         ("\\.edn\\'" . clojure-mode)
+	 ("\\.cljs\\'" . clojurescript-mode)))
 
-;; paredit
-(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
-(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
-(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
-(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
-(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
-(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
-(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
-(add-hook 'clojure-mode-hook          #'paredit-mode)
+(use-package ruby-mode
+  :mode "\\.rb\\'"
+  :interpreter "ruby")
 
-;; cider
-(add-hook 'cider-mode-hook 'eldoc-mode)
-(add-hook 'cider-repl-mode-hook 'paredit-mode)
-(add-hook 'cider-repl-mode-hook 'subword-mode)
-(add-hook 'cider-repl-mode-hook 'rainbow-delimiters-mode)
-(setq nrepl-hide-special-buffers t)
-(setq cider-repl-history-file "~/.emacs.d/cache/cider-history")
-(setq cider-repl-wrap-history t)
-(setq cider-repl-history-size 1000)
-(setq cider-show-error-buffer nil)
-(require 'icomplete)
+(use-package rainbow-delimiters
+  :ensure t
+  :hook (prog-mode . rainbow-delimiters-mode))
 
-;; projectile
-(projectile-global-mode)
+(use-package smartparens
+  :ensure t
+  :hook (clojure-mode . smartparens-mode))
 
-;; flx-ido
-(require 'flx-ido)
-(ido-mode 1)
-(ido-everywhere 1)
-(flx-ido-mode 1)
-;; disable ido faces to see flx highlights.
-(setq ido-enable-flex-matching t)
-(setq ido-use-faces nil)
+(use-package which-key
+  :ensure t
+  :config (which-key-mode))
 
-(require 'ensime)
-(add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
+(use-package projectile
+  :ensure t
+  :config (projectile-mode))
 
-;; web-mode
-(require 'web-mode)
-(setq web-mode-css-indent-offset 2)
-(setq web-mode-enable-css-colorization t)
-(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.haml\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.slim\\'" . web-mode))
+(use-package company
+  :ensure t
+  :init (global-company-mode))
 
-;; markdown-mode
-(autoload 'markdown-mode "markdown-mode"
-   "Major mode for editing Markdown files" t)
-(add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
-(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+;; use shift arrow to navigate from win to win
+(windmove-default-keybindings)
+
+;; aliases
+(defalias 'list-buffers 'ibuffer)
+(defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; disable auto-save and auto-backup
 (setq auto-save-default nil)
 (setq make-backup-files nil)
 
-;; enable ruby mode
-(add-to-list 'auto-mode-alist
-	     '("\\.\\(?:gemspec\\|irbrc\\|gemrc\\|rake\\|rb\\|ru\\|thor\\)\\'" . ruby-mode))
-(add-to-list 'auto-mode-alist
-             '("\\(Capfile\\|Gemfile\\(?:\\.[a-zA-Z0-9._-]+\\)?\\|[rR]akefile\\)\\'" . ruby-mode))
-(setq-default tab-width 2)
-(setq enh-ruby-indent-tabs-mode t)
-(defvaralias 'enh-ruby-indent-level 'tab-width)
-(defvaralias 'enh-ruby-hanging-indent-level 'tab-width)
+;; ido
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
+(ido-mode 1)
 
-;; line numbers
-(global-linum-mode t)
-(global-hl-line-mode +1)
-(set-face-foreground 'highlight nil)
-(setq linum-format "%4d ")
+;; move lines around
+(defmacro save-column (&rest body)
+  `(let ((column (current-column)))
+     (unwind-protect
+         (progn ,@body)
+       (move-to-column column))))
+(put 'save-column 'lisp-indent-function 0)
 
-;; aliases
-(defalias 'yes-or-no-p 'y-or-n-p)
+(defun move-line-up ()
+  (interactive)
+  (save-column
+    (transpose-lines 1)
+    (forward-line -2)))
 
-;; (load-theme 'solarized-dark t)
-;; (setq solarized-use-less-bold t)
-(load-theme 'spacemacs-dark t)
-;; (set-frame-parameter nil 'background-mode 'dark)
-;; (set-terminal-parameter nil 'background-mode 'dark)
+(defun move-line-down ()
+  (interactive)
+  (save-column
+    (forward-line 1)
+    (transpose-lines 1)
+    (forward-line -1)))
 
-(eval-after-load 'clojure-mode
-  '(font-lock-add-keywords
-    'clojure-mode `(("(\\(fn\\)[\[[:space:]]"
-                     (0 (progn (compose-region (match-beginning 1)
-                                               (match-end 1) "λ")
-                               nil))))))
+(global-set-key (kbd "M-<up>") 'move-line-up)
+(global-set-key (kbd "M-<down>") 'move-line-down)
 
-(eval-after-load 'clojure-mode
-  '(font-lock-add-keywords
-    'clojure-mode `(("\\(#\\)("
-                     (0 (progn (compose-region (match-beginning 1)
-                                               (match-end 1) "ƒ")
-                               nil))))))
+;; move regions around
+(defun move-region (start end n)
+  "Move the current region up or down by N lines."
+  (interactive "r\np")
+  (let ((line-text (delete-and-extract-region start end)))
+    (forward-line n)
+    (let ((start (point)))
+      (insert line-text)
+      (setq deactivate-mark nil)
+      (set-mark start))))
 
-(eval-after-load 'clojure-mode
-  '(font-lock-add-keywords
-    'clojure-mode `(("\\(#\\){"
-                     (0 (progn (compose-region (match-beginning 1)
-                                               (match-end 1) "∈")
-                               nil))))))
-(add-hook 'scala-mode-hook '(lambda ()
-  (require 'whitespace)
+(defun move-region-up (start end n)
+  "Move the current line up by N lines."
+  (interactive "r\np")
+  (move-region start end (if (null n) -1 (- n))))
+(defun move-region-down (start end n)
+  "Move the current line down by N lines."
+  (interactive "r\np")
+  (move-region start end (if (null n) 1 n)))
 
-  ;; clean-up whitespace at save
-  (make-local-variable 'before-save-hook)
-  (add-hook 'before-save-hook 'whitespace-cleanup)
-
-  ;; turn on highlight. To configure what is highlighted, customize
-  ;; the *whitespace-style* variable. A sane set of things to
-  ;; highlight is: face, tabs, trailing
-  (whitespace-mode)
-))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (spacemacs-theme slim-mode zenburn-theme web-mode solarized-theme rainbow-delimiters projectile paredit markdown-mode json-reformat highlight-parentheses goto-last-change geiser flx-ido exec-path-from-shell evil ensime color-theme-solarized clojure-mode-extra-font-locking cider))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(global-set-key (kbd "M-C-<up>") 'move-region-up)
+(global-set-key (kbd "M-C-<down>") 'move-region-down)
