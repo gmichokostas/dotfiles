@@ -14,6 +14,11 @@
 (require 'use-package)
 
 (when (eq system-type 'darwin)
+  ;; titlebar for MacOS
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist '(ns-appearance . dark))
+  (setq ns-use-proxy-icon  nil)
+  (setq frame-title-format nil)
   (setq mac-option-key-is-meta nil ;; rebind Meta key to cmd
 	mac-command-key-is-meta t
 	mac-command-modifier 'meta
@@ -37,11 +42,6 @@
 (setq ring-bell-function 'ignore)
 (show-paren-mode)
 
-;; titlebar for MacOS
-(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-(add-to-list 'default-frame-alist '(ns-appearance . dark))
-(setq ns-use-proxy-icon  nil)
-(setq frame-title-format nil)
 
 ;; packages
 
