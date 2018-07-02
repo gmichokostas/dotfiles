@@ -14,6 +14,7 @@
 (eval-when-compile (require 'use-package))
 
 (when (eq system-type 'darwin)
+  (exec-path-from-shell-initialize)
   ;; titlebar for MacOS
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (add-to-list 'default-frame-alist '(ns-appearance . dark))
