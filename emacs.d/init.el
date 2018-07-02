@@ -11,7 +11,7 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
-(require 'use-package)
+(eval-when-compile (require 'use-package))
 
 (when (eq system-type 'darwin)
   ;; titlebar for MacOS
@@ -42,7 +42,6 @@
 (setq ring-bell-function 'ignore)
 (show-paren-mode)
 
-
 ;; packages
 
 (use-package doom-themes
@@ -69,7 +68,7 @@
 
 (use-package smartparens
   :ensure t
-  :hook (clojure-mode . smartparens-mode))
+  :hook (prog-mode . smartparens-mode))
 
 (use-package which-key
   :ensure t
@@ -82,6 +81,11 @@
 (use-package company
   :ensure t
   :init (global-company-mode))
+
+(use-package multiple-cursors
+  :ensure t
+  :bind (("M-." . mc/mark-all-symbols-like-this))
+  :hook (prog-mode . multiple-cursors-mode))
 
 ;; use shift arrow to navigate from win to win
 (windmove-default-keybindings)
