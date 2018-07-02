@@ -84,7 +84,8 @@
 
 (use-package multiple-cursors
   :ensure t
-  :bind (("M-." . mc/mark-all-symbols-like-this))
+  :bind (("M-." . mc/mark-next-like-this-symbol)
+	 ("M-," . mc/mark-previous-like-this-symbol))
   :hook (prog-mode . multiple-cursors-mode))
 
 ;; use shift arrow to navigate from win to win
