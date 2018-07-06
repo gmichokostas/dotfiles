@@ -28,11 +28,9 @@
 ;; general editor settings
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
-(global-display-line-numbers-mode t)
-(global-hl-line-mode t)
+(global-auto-revert-mode 1) ;; reload file when it has changed in the disk
 
 ;; UI
-(menu-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1)
 (scroll-bar-mode -1)
@@ -42,12 +40,16 @@
 (setq inhibit-startup-message t)
 (setq ring-bell-function 'ignore)
 (show-paren-mode)
+(global-display-line-numbers-mode t)
+(global-hl-line-mode t)
+(set-face-background 'hl-line "gray16")
 
 ;; packages
 
-(use-package doom-themes
+(use-package tangotango-theme
   :ensure t
-  :config (load-theme 'doom-one t))
+  :config
+  (load-theme 'tangotango t))
 
 (use-package cider
   :ensure t
@@ -65,11 +67,13 @@
 
 (use-package rainbow-delimiters
   :ensure t
-  :hook (prog-mode . rainbow-delimiters-mode))
+  :hook ((prog-mode . rainbow-delimiters-mode)
+	 (cider-repl-mode . rainbow-delimiters-mode)))
 
 (use-package smartparens
   :ensure t
-  :hook (prog-mode . smartparens-mode))
+  :hook ((prog-mode . smartparens-mode)
+	 (cider-repl-mode . smartparens-mode)))
 
 (use-package which-key
   :ensure t
@@ -114,12 +118,14 @@
 (put 'save-column 'lisp-indent-function 0)
 
 (defun move-line-up ()
+  "Move the current line up one line"
   (interactive)
   (save-column
     (transpose-lines 1)
     (forward-line -2)))
 
 (defun move-line-down ()
+  "Move the current line down one line"
   (interactive)
   (save-column
     (forward-line 1)
@@ -151,3 +157,6 @@
 
 (global-set-key (kbd "M-C-<up>") 'move-region-up)
 (global-set-key (kbd "M-C-<down>") 'move-region-down)
+
+;; paste from clipboard
+(global-set-key (kbd "M-p") 'clipboard-yank)
