@@ -61,9 +61,9 @@
          ("\\.edn\\'" . clojure-mode)
 	 ("\\.cljs\\'" . clojurescript-mode)))
 
-(use-package ruby-mode
-  :mode "\\.rb\\'"
-  :interpreter "ruby")
+(use-package flymake-ruby
+  :ensure t
+  :hook (ruby-mode . flymake-ruby-load))
 
 (use-package rainbow-delimiters
   :ensure t
@@ -93,7 +93,17 @@
 	 ("M-," . mc/mark-previous-like-this-symbol))
   :hook (prog-mode . multiple-cursors-mode))
 
-;; use shift arrow to navigate from win to win
+(use-package web-mode
+  :ensure t
+  :config
+  (setq web-mode-extra-auto-pairs '(("erb" . (("beg" "end")))))
+  (setq web-mode-enable-css-colorization t)
+  (setq web-mode-enable-current-column-highlight t)
+  (setq web-mode-enable-current-element-highlight t)
+  :mode (("\\.html?\\'" . web-mode)
+	 ("\\.erb\\'" . web-mode)))
+
+;; use shift arrow to navigate from window to windown
 (windmove-default-keybindings)
 
 ;; aliases
