@@ -34,7 +34,7 @@
 (tool-bar-mode -1)
 (tooltip-mode -1)
 (scroll-bar-mode -1)
-(set-frame-font "Menlo 13")
+(set-frame-font "Droid Sans Mono for Powerline 14")
 (setq column-number-mode t)
 (setq display-line-numbers-grow-only t)
 (setq inhibit-startup-message t)
