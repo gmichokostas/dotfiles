@@ -35,13 +35,13 @@
 (setq
   column-number-mode t
   display-line-numbers-grow-only t
-  global-hl-line-mode t
-  indent-tabs-mode nil
   initial-scratch-message ""
   load-prefer-newer t
   ring-bell-function 'ignore
   select-enable-clipboard t
   inhibit-startup-screen t)
+
+(setq-default indent-tabs-mode nil)
 
 ;; UI
 (tool-bar-mode -1)
@@ -49,13 +49,19 @@
 (scroll-bar-mode -1)
 (set-frame-font "Roboto Mono for Powerline 14")
 (show-paren-mode)
+(global-hl-line-mode t)
+(global-display-line-numbers-mode t)
+(set-face-background 'hl-line "gray16")
 
 ;; packages
 
-(use-package doom-themes
+(use-package magit
+  :ensure t)
+
+(use-package tangotango-theme
   :ensure t
   :config
-  (load-theme 'doom-nord t))
+  (load-theme 'tangotango t))
 
 (use-package cider
   :ensure t
