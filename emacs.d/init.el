@@ -19,16 +19,18 @@
   ;; titlebar for MacOS
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (add-to-list 'default-frame-alist '(ns-appearance . dark))
+  (require 'ls-lisp)
   (setq ns-use-proxy-icon  nil)
   (setq frame-title-format nil)
   (setq mac-option-key-is-meta nil ;; rebind Meta key to cmd
         mac-command-key-is-meta t
         mac-command-modifier 'meta
-        mac-option-modifier 'none))
+        mac-option-modifier 'none
+        dired-use-ls-dired nil
+        ls-lisp-use-insert-directory-program nil))
 
 ;; general editor settings
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
-(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 (global-auto-revert-mode 1) ;; reload file when it has changed in the disk
 
 ;; Better defaults
@@ -42,6 +44,7 @@
   inhibit-startup-screen t)
 
 (setq-default indent-tabs-mode nil)
+(setq-default frame-title-format "%f")
 
 ;; UI
 (tool-bar-mode -1)
@@ -58,10 +61,60 @@
 (use-package magit
   :ensure t)
 
-(use-package tangotango-theme
+(use-package undo-tree
+  :ensure t)
+
+(use-package dumb-jump
+  :ensure t
+  :init
+  (dumb-jump-mode)
+  :bind (("C-M-o" . dumb-jump-go-other-window))
+  :config
+  (setq dumb-jump-selector 'ivy))(use-package delight
+  :ensure t)
+
+(use-package ibuffer-vc
+  :ensure t
+  :init
+  :hook ((ibuffer-mode . (lambda ()
+                           (ibuffer-vc-set-filter-groups-by-vc-root)
+                           (unless (eq ibuffer-sorting-mode 'alphabetic)
+                             (ibuffer-do-sort-by-alphabetic))))))
+
+
+(use-package coffee-mode
   :ensure t
   :config
-  (load-theme 'tangotango t))
+  (setq whitespace-action '(auto-cleanup))
+  (setq whitespace-style '(trailing space-before-tab indentation empty space-after-tab)))
+
+(use-package slime
+  :ensure t
+  :config
+  (setq inferior-lisp-program "opt/sbcl/bin/sbcl"
+        slime-contribs '(slime-fancy)))
+
+(use-package geiser
+  :ensure t
+  :config
+  (setq geiser-active-implementations '(mit)))
+
+(use-package neotree
+  :ensure t
+  :bind (([f8] . neotree-toggle))
+  :config
+  (setq neo-theme 'arrow)
+  (setq projectile-switch-project-action 'neotree-projectile-action))
+
+(use-package yaml-mode
+  :ensure t
+  :mode (("\\.yml\\'" . yaml-mode)
+         ("\\.yaml\\'" . yaml-mode)))
+
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-nord t))
 
 (use-package cider
   :ensure t
@@ -95,9 +148,53 @@
   :ensure t
   :config (which-key-mode))
 
+(use-package ivy
+  :ensure t
+  :delight ivy-mode
+  :config
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  (global-set-key (kbd "<f6>") 'ivy-resume))
+
+(use-package counsel
+  :ensure t
+  :config
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+  (global-set-key (kbd "<f1> l") 'counsel-find-library)
+  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+  (global-set-key (kbd "C-c g") 'counsel-git)
+  (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  (global-set-key (kbd "C-c a") 'counsel-ag)
+  (global-set-key (kbd "C-x l") 'counsel-locate)
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
+
+(use-package swiper
+  :ensure t
+  :config
+  (global-set-key "\C-s" 'swiper))
+
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+
 (use-package projectile
   :ensure t
-  :config (projectile-mode))
+  :init
+  (setq projectile-completion-system 'ivy)
+  :delight '(:eval (concat " " (projectile-project-name)))
+  :bind (("M-p" . projectile-find-file))
+  :config
+  (projectile-mode +1))
 
 (use-package company
   :ensure t
@@ -111,15 +208,16 @@
 
 (use-package web-mode
   :ensure t
+  :hook ((web-mode . (lambda () (setq web-mode-markup-indent-offset 2))))
   :config
   (setq web-mode-extra-auto-pairs '(("erb" . (("beg" "end")))))
   (setq web-mode-enable-css-colorization t)
   (setq web-mode-enable-current-column-highlight t)
   (setq web-mode-enable-current-element-highlight t)
+  (setq web-mode-code-indent-offset 2)
   :mode (("\\.html?\\'" . web-mode)
          ("\\.erb\\'" . web-mode)))
 
-;; use shift arrow to navigate from window to window
 (windmove-default-keybindings)
 
 ;; aliases
@@ -130,13 +228,6 @@
 ;; disable auto-save and auto-backup
 (setq auto-save-default nil)
 (setq make-backup-files nil)
-
-;; ido
-(setq ido-enable-flex-matching t
-      ido-everywhere t
-      ido-create-new-buffer 'always
-      ido-use-filename-at-point 'guess)
-(ido-mode 1)
 
 ;; move lines around
 (defmacro save-column (&rest body)
@@ -188,7 +279,7 @@
 (global-set-key (kbd "M-C-<up>") 'move-region-up)
 (global-set-key (kbd "M-C-<down>") 'move-region-down)
 
-(global-set-key (kbd "M-p") 'clipboard-yank) ;; paste from clipboard
+(global-set-key (kbd "M-j") 'clipboard-yank) ;; paste from clipboard
 (global-set-key (kbd "M-;") 'comment-line) ;; rebind add comment key combo
 
 ;; smart openline
@@ -214,6 +305,28 @@ Position the cursor at it's beginning, according to the current mode."
 
 (global-set-key (kbd "C-o") 'smart-open-line-below)
 (global-set-key (kbd "M-o") 'smart-open-line-above)
+
+(defun duplicate-current-line-or-region (arg)
+  "Duplicates the current line or region ARG times.
+If there's no region, the current line will be duplicated. However, if
+there's a region, all lines that region covers will be duplicated."
+  (interactive "p")
+  (let (beg end (origin (point)))
+    (if (and mark-active (> (point) (mark)))
+        (exchange-point-and-mark))
+    (setq beg (line-beginning-position))
+    (if mark-active
+        (exchange-point-and-mark))
+    (setq end (line-end-position))
+    (let ((region (buffer-substring-no-properties beg end)))
+      (dotimes (i arg)
+        (goto-char end)
+        (newline)
+        (insert region)
+        (setq end (point)))
+      (goto-char (+ origin (* (length region) arg) arg)))))
+
+(global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
 
 ;; highlight redundant whitespace
 (add-hook 'prog-mode-hook (lambda ()
