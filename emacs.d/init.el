@@ -227,8 +227,8 @@
 
 (use-package multiple-cursors
   :ensure t
-  :bind (("M-." . mc/mark-next-like-this-symbol)
-         ("M-," . mc/mark-previous-like-this-symbol))
+  :bind (("M-." . mc/mark-next-like-this-word)
+         ("M-," . mc/mark-previous-like-this-word))
   :hook (prog-mode . multiple-cursors-mode))
 
 (use-package web-mode
