@@ -1,3 +1,12 @@
+;; Allow more than 800Kb cache during init
+(setq gc-cons-threshold 402653184
+      gc-cons-percentage 0.6)
+
+(defun mu-set-gc-threshold ()
+  "Reset `gc-cons-threshold' and `gc-cons-percentage' to their default values."
+  (setq gc-cons-threshold 16777216
+        gc-cons-percentage 0.1))
+
 ;; Package configs
 (require 'package)
 (setq package-enable-at-startup nil)
@@ -32,16 +41,17 @@
 ;; general editor settings
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (global-auto-revert-mode 1) ;; reload file when it has changed in the disk
+(setq apropos-sort-by-scores t)
 
 ;; Better defaults
 (setq
-  column-number-mode t
-  display-line-numbers-grow-only t
-  initial-scratch-message ""
-  load-prefer-newer t
-  ring-bell-function 'ignore
-  select-enable-clipboard t
-  inhibit-startup-screen t)
+ column-number-mode t
+ display-line-numbers-grow-only t
+ initial-scratch-message ""
+ load-prefer-newer t
+ ring-bell-function 'ignore
+ select-enable-clipboard t
+ inhibit-startup-screen t)
 
 (setq-default indent-tabs-mode nil)
 (setq-default frame-title-format "%f")
@@ -59,7 +69,18 @@
 ;; packages
 
 (use-package magit
-  :ensure t)
+  :ensure t
+  :config
+  (setq magit-completing-read-function 'ivy-completing-read))
+
+(use-package git-gutter
+  :ensure t
+  :delight (git-gutter-mode)
+  :hook ((prog-mode . git-gutter-mode)))
+
+(use-package org-bullets
+  :ensure t
+  :hook ((org-mode . (lambda () (org-bullets-mode 1)))))
 
 (use-package undo-tree
   :ensure t)
@@ -81,10 +102,10 @@
                            (unless (eq ibuffer-sorting-mode 'alphabetic)
                              (ibuffer-do-sort-by-alphabetic))))))
 
-
 (use-package coffee-mode
   :ensure t
   :config
+  (setq coffee-tab-width 2)
   (setq whitespace-action '(auto-cleanup))
   (setq whitespace-style '(trailing space-before-tab indentation empty space-after-tab)))
 
@@ -103,7 +124,6 @@
   :ensure t
   :bind (([f8] . neotree-toggle))
   :config
-  (setq neo-theme 'arrow)
   (setq projectile-switch-project-action 'neotree-projectile-action))
 
 (use-package yaml-mode
@@ -114,6 +134,10 @@
 (use-package doom-themes
   :ensure t
   :config
+  (doom-themes-neotree-config)
+  (setq doom-neotree-enable-folder-icons t
+        doom-neotree-enable-file-icons t
+        doom-neotree-enable-chevron-icons t)
   (load-theme 'doom-nord t))
 
 (use-package cider
@@ -151,33 +175,31 @@
 (use-package ivy
   :ensure t
   :delight ivy-mode
+  :bind (("C-c C-r" . ivy-resume))
   :config
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t)
-  (setq enable-recursive-minibuffers t)
-  (global-set-key (kbd "C-c C-r") 'ivy-resume)
-  (global-set-key (kbd "<f6>") 'ivy-resume))
+  (setq enable-recursive-minibuffers t))
 
 (use-package counsel
   :ensure t
+  :bind(("M-x" . counsel-M-x)
+        ("C-x C-f" . counsel-find-file)
+        ("<f1> f" . counsel-describe-function)
+        ("<f1> v" . counsel-describe-variable)
+        ("<f1> l" . counsel-find-library)
+        ("<f2> i" . counsel-info-lookup-symbol)
+        ("<f2> u" . counsel-unicode-char)
+        ("C-c g" . counsel-git)
+        ("C-c j" . counsel-git-grep)
+        ("C-c a" . counsel-ag)
+        ("C-x l" . counsel-locate))
   :config
-  (global-set-key (kbd "M-x") 'counsel-M-x)
-  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-  (global-set-key (kbd "<f1> l") 'counsel-find-library)
-  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-  (global-set-key (kbd "C-c g") 'counsel-git)
-  (global-set-key (kbd "C-c j") 'counsel-git-grep)
-  (global-set-key (kbd "C-c a") 'counsel-ag)
-  (global-set-key (kbd "C-x l") 'counsel-locate)
   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
 
 (use-package swiper
   :ensure t
-  :config
-  (global-set-key "\C-s" 'swiper))
+  :bind (("\C-s" . swiper)))
 
 (use-package markdown-mode
   :ensure t
@@ -192,13 +214,16 @@
   :init
   (setq projectile-completion-system 'ivy)
   :delight '(:eval (concat " " (projectile-project-name)))
-  :bind (("M-p" . projectile-find-file))
+  :bind (("M-p" . projectile-find-file)
+         ("M-t" . projectile-toggle-between-implementation-and-test))
   :config
   (projectile-mode +1))
 
 (use-package company
   :ensure t
-  :init (global-company-mode))
+  :init (global-company-mode)
+  :config
+  (setq company-dabbrev-downcase nil))
 
 (use-package multiple-cursors
   :ensure t
@@ -228,6 +253,11 @@
 ;; disable auto-save and auto-backup
 (setq auto-save-default nil)
 (setq make-backup-files nil)
+(setq create-lockfiles nil)
+
+(setq ruby-insert-encoding-magic-comment nil)
+
+(delete-selection-mode 1)
 
 ;; move lines around
 (defmacro save-column (&rest body)
@@ -332,3 +362,6 @@ there's a region, all lines that region covers will be duplicated."
 (add-hook 'prog-mode-hook (lambda ()
                             (interactive)
                             (setq show-trailing-whitespace 1)))
+
+;; Reset default values
+(add-hook 'emacs-startup-hook #'mu-set-gc-threshold)
