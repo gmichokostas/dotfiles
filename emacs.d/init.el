@@ -1,11 +1,20 @@
-;; Allow more than 800Kb cache during init
-(setq gc-cons-threshold 402653184
-      gc-cons-percentage 0.6)
+;; -*- lexical-binding: t; -*-
 
-(defun mu-set-gc-threshold ()
+(setq gc-cons-threshold 100000000
+      gc-cons-percentage 0.9)
+
+(defun my/reset-gc-threshold ()
   "Reset `gc-cons-threshold' and `gc-cons-percentage' to their default values."
-  (setq gc-cons-threshold 16777216
-        gc-cons-percentage 0.1))
+  (setq gc-cons-threshold (car (get 'gc-cons-threshold 'standard-value))
+        gc-cons-percentage (car (get 'gc-cons-percentage 'standard-value))))
+
+(defvar my--file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+
+(defun my/reset-file-name-handler-alist ()
+    (setq file-name-handler-alist my--file-name-handler-alist))
+
+(setq load-prefer-newer t)
 
 ;; Package configs
 (require 'package)
@@ -63,23 +72,28 @@
 (set-frame-font "Roboto Mono for Powerline 14")
 (show-paren-mode)
 (global-hl-line-mode t)
-(global-display-line-numbers-mode t)
-(set-face-background 'hl-line "gray16")
 
 ;; packages
 
+(use-package delight
+  :ensure t)
+
 (use-package magit
   :ensure t
+  :defer t
+  :bind (("C-x g" . magit-status))
   :config
   (setq magit-completing-read-function 'ivy-completing-read))
 
 (use-package git-gutter
   :ensure t
   :delight (git-gutter-mode)
-  :hook ((prog-mode . git-gutter-mode)))
+  :hook ((prog-mode . git-gutter-mode)
+         (yaml-mode . git-gutter-mode)))
 
 (use-package org-bullets
   :ensure t
+  :defer t
   :hook ((org-mode . (lambda () (org-bullets-mode 1)))))
 
 (use-package undo-tree
@@ -87,12 +101,10 @@
 
 (use-package dumb-jump
   :ensure t
-  :init
-  (dumb-jump-mode)
+  :hook (after-init . dumb-jump-mode)
   :bind (("C-M-o" . dumb-jump-go-other-window))
   :config
-  (setq dumb-jump-selector 'ivy))(use-package delight
-  :ensure t)
+  (setq dumb-jump-selector 'ivy))
 
 (use-package ibuffer-vc
   :ensure t
@@ -104,6 +116,7 @@
 
 (use-package coffee-mode
   :ensure t
+  :mode "\\.coffee\\'"
   :config
   (setq coffee-tab-width 2)
   (setq whitespace-action '(auto-cleanup))
@@ -111,25 +124,34 @@
 
 (use-package slime
   :ensure t
+  :defer t
   :config
   (setq inferior-lisp-program "opt/sbcl/bin/sbcl"
         slime-contribs '(slime-fancy)))
 
 (use-package geiser
   :ensure t
+  :defer t
   :config
   (setq geiser-active-implementations '(mit)))
 
 (use-package neotree
   :ensure t
+  :defer t
   :bind (([f8] . neotree-toggle))
   :config
-  (setq projectile-switch-project-action 'neotree-projectile-action))
+  (setq projectile-switch-project-action 'neotree-projectile-action
+        neo-smart-open t))
 
 (use-package yaml-mode
   :ensure t
   :mode (("\\.yml\\'" . yaml-mode)
          ("\\.yaml\\'" . yaml-mode)))
+
+(use-package atom-one-dark-theme
+  :ensure t
+  :config
+  (load-theme 'atom-one-dark t))
 
 (use-package doom-themes
   :ensure t
@@ -137,11 +159,14 @@
   (doom-themes-neotree-config)
   (setq doom-neotree-enable-folder-icons t
         doom-neotree-enable-file-icons t
-        doom-neotree-enable-chevron-icons t)
-  (load-theme 'doom-nord t))
+        doom-neotree-enable-chevron-icons t
+        doom-neotree-project-size 1
+        doom-neotree-folder-size 1
+        doom-neotree-chevron-size 0.6))
 
 (use-package cider
   :ensure t
+  :defer t
   :config (setq cider-repl-use-pretty-printing t))
 
 (use-package clojure-mode
@@ -152,11 +177,12 @@
 
 (use-package flymake-ruby
   :ensure t
+  :mode "\\.rb\\'"
   :hook (ruby-mode . flymake-ruby-load))
 
 (use-package ruby-electric
   :ensure t
-  :hook (ruby-mode . ruby-electric-mode))
+  :mode ("\\.rb\\'" . ruby-mode))
 
 (use-package rainbow-delimiters
   :ensure t
@@ -221,7 +247,7 @@
 
 (use-package company
   :ensure t
-  :init (global-company-mode)
+  :hook (after-init . global-company-mode)
   :config
   (setq company-dabbrev-downcase nil))
 
@@ -338,7 +364,7 @@ Position the cursor at it's beginning, according to the current mode."
 
 (defun duplicate-current-line-or-region (arg)
   "Duplicates the current line or region ARG times.
-If there's no region, the current line will be duplicated. However, if
+If there's no region, the current line will be duplicated.  However, if
 there's a region, all lines that region covers will be duplicated."
   (interactive "p")
   (let (beg end (origin (point)))
@@ -358,10 +384,15 @@ there's a region, all lines that region covers will be duplicated."
 
 (global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
 
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
 ;; highlight redundant whitespace
 (add-hook 'prog-mode-hook (lambda ()
                             (interactive)
                             (setq show-trailing-whitespace 1)))
 
+(put 'downcase-region 'disabled nil)
+
 ;; Reset default values
-(add-hook 'emacs-startup-hook #'mu-set-gc-threshold)
+(add-hook 'emacs-startup-hook 'my/reset-gc-threshold)
+(add-hook 'emacs-startup-hook 'my/reset-file-name-handler-alist)
