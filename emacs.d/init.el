@@ -1,18 +1,19 @@
 ;; -*- lexical-binding: t; -*-
 
-(setq gc-cons-threshold 100000000
-      gc-cons-percentage 0.9)
+(defvar file-name-handler-alist-old file-name-handler-alist)
 
-(defun my/reset-gc-threshold ()
-  "Reset `gc-cons-threshold' and `gc-cons-percentage' to their default values."
-  (setq gc-cons-threshold (car (get 'gc-cons-threshold 'standard-value))
-        gc-cons-percentage (car (get 'gc-cons-percentage 'standard-value))))
+(setq package-enable-at-startup nil
+      file-name-handler-alist nil
+      gc-cons-threshold 402653184
+      gc-cons-percentage 0.8
+      auto-window-vscroll nil)
 
-(defvar my--file-name-handler-alist file-name-handler-alist)
-(setq file-name-handler-alist nil)
-
-(defun my/reset-file-name-handler-alist ()
-    (setq file-name-handler-alist my--file-name-handler-alist))
+(add-hook 'after-init-hook
+          `(lambda ()
+             (setq file-name-handler-alist file-name-handler-alist-old
+                   gc-cons-threshold 800000
+                   gc-cons-percentage 0.1)
+             (garbage-collect)) t)
 
 (setq load-prefer-newer t)
 
@@ -32,8 +33,7 @@
 (eval-when-compile (require 'use-package))
 
 ;; MacOS related
-(when (eq system-type 'darwin)
-  (exec-path-from-shell-initialize)
+(when (memq window-system '(mac ns darwin))
   ;; titlebar for MacOS
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (add-to-list 'default-frame-alist '(ns-appearance . dark))
@@ -48,11 +48,27 @@
         ls-lisp-use-insert-directory-program nil))
 
 ;; general editor settings
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-(global-auto-revert-mode 1) ;; reload file when it has changed in the disk
+
+(setq org-hide-leading-stars t
+      org-ellipsis "⤵")
 (setq apropos-sort-by-scores t)
+(global-prettify-symbols-mode 1)
+(global-auto-revert-mode 1) ;; reload file when it has changed in the disk
+(windmove-default-keybindings)
+
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+
+
+;; aliases
+
+(defalias 'list-buffers 'ibuffer)
+(defalias 'yes-or-no-p 'y-or-n-p)
+(defalias 'eb 'eval-buffer)
+
 
 ;; Better defaults
+
 (setq
  column-number-mode t
  display-line-numbers-grow-only t
@@ -62,21 +78,94 @@
  select-enable-clipboard t
  inhibit-startup-screen t)
 
-(setq-default indent-tabs-mode nil)
-(setq-default frame-title-format "%f")
+(setq-default truncate-lines t
+              indent-tabs-mode nil
+              require-final-newline t
+              frame-title-format "%f")
+
+(delete-selection-mode 1)
+
+;; highlight redundant whitespace
+(add-hook 'prog-mode-hook (lambda ()
+                            (interactive)
+                            (setq show-trailing-whitespace 1)))
+
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+(global-unset-key "\C-z")
+
+;; disable auto-save and auto-backup
+
+(setq auto-save-default nil
+      make-backup-files nil
+      create-lockfiles nil)
+
+(setq ruby-insert-encoding-magic-comment nil)
 
 ;; UI
+
 (tool-bar-mode -1)
 (tooltip-mode -1)
 (scroll-bar-mode -1)
-(set-frame-font "Roboto Mono for Powerline 14")
+(set-frame-font "Meslo LG M DZ for Powerline 15")
 (show-paren-mode)
 (global-hl-line-mode t)
 
 ;; packages
 
-(use-package delight
-  :ensure t)
+(use-package delight :ensure t)
+(use-package htmlize :ensure t)
+(use-package all-the-icons :ensure t)
+(use-package undo-tree :ensure t)
+
+(use-package hungry-delete
+  :ensure t
+  :bind (("C-<backspace>" . hungry-delete-backward))
+  :config
+  (global-hungry-delete-mode))
+
+(use-package rust-mode
+  :ensure t
+  :hook ((rust-mode . company-mode))
+  :config
+  (setq rust-format-on-save t))
+
+(use-package racer
+  :ensure t
+  :after rust-mode
+  :hook ((rust-mode . racer-mode)
+         (racer-mode . eldoc-mode)
+         (racer-mode . company-mode)))
+
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
+(use-package dockerfile-mode
+  :ensure t
+  :mode (("Dockerfile\\'" . dockerfile-mode)))
+
+(use-package lua-mode
+  :ensure t
+  :mode (("\\.lua\\'" . lua-mode))
+  :hook ((lua-mode . company-mode))
+  :config
+  (setq lua-indent-level 2))
+
+(use-package company-lua
+  :ensure t
+  :after company)
+
+(use-package eyebrowse
+  :ensure t
+  :config
+  (setq eyebrowse-mode-line-separator " "
+        eyebrowse-new-workspace t)
+  (eyebrowse-setup-opinionated-keys)
+  (eyebrowse-mode t))
 
 (use-package magit
   :ensure t
@@ -89,6 +178,7 @@
   :ensure t
   :delight (git-gutter-mode)
   :hook ((prog-mode . git-gutter-mode)
+         (org-mode . git-gutter-mode)
          (yaml-mode . git-gutter-mode)))
 
 (use-package org-bullets
@@ -96,15 +186,13 @@
   :defer t
   :hook ((org-mode . (lambda () (org-bullets-mode 1)))))
 
-(use-package undo-tree
-  :ensure t)
-
 (use-package dumb-jump
   :ensure t
   :hook (after-init . dumb-jump-mode)
   :bind (("C-M-o" . dumb-jump-go-other-window))
   :config
-  (setq dumb-jump-selector 'ivy))
+  (setq dumb-jump-selector 'ivy
+        dumb-jump-prefer-searcher 'rg))
 
 (use-package ibuffer-vc
   :ensure t
@@ -122,18 +210,24 @@
   (setq whitespace-action '(auto-cleanup))
   (setq whitespace-style '(trailing space-before-tab indentation empty space-after-tab)))
 
+(use-package vue-mode
+  :ensure t
+  :mode "\\.vue\\'"
+  :config
+  (setq mmm-submode-decoration-level 0))
+
 (use-package slime
   :ensure t
   :defer t
   :config
-  (setq inferior-lisp-program "opt/sbcl/bin/sbcl"
+  (setq inferior-lisp-program "/usr/local/bin/sbcl"
         slime-contribs '(slime-fancy)))
 
 (use-package geiser
   :ensure t
   :defer t
   :config
-  (setq geiser-active-implementations '(mit)))
+  (setq geiser-active-implementations '(chicken)))
 
 (use-package neotree
   :ensure t
@@ -148,21 +242,21 @@
   :mode (("\\.yml\\'" . yaml-mode)
          ("\\.yaml\\'" . yaml-mode)))
 
-(use-package atom-one-dark-theme
-  :ensure t
-  :config
-  (load-theme 'atom-one-dark t))
-
 (use-package doom-themes
   :ensure t
   :config
   (doom-themes-neotree-config)
-  (setq doom-neotree-enable-folder-icons t
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t
+        doom-one-brighter-modeline t
+        doom-one-brighter-comments t
+        doom-neotree-enable-folder-icons t
         doom-neotree-enable-file-icons t
         doom-neotree-enable-chevron-icons t
         doom-neotree-project-size 1
         doom-neotree-folder-size 1
-        doom-neotree-chevron-size 0.6))
+        doom-neotree-chevron-size 0.6)
+  (load-theme 'doom-one t))
 
 (use-package cider
   :ensure t
@@ -177,12 +271,13 @@
 
 (use-package flymake-ruby
   :ensure t
-  :mode "\\.rb\\'"
   :hook (ruby-mode . flymake-ruby-load))
 
 (use-package ruby-electric
   :ensure t
-  :mode ("\\.rb\\'" . ruby-mode))
+  :mode ("\\.rb\\'" . ruby-mode)
+  :hook ((ruby-mode . ruby-electric-mode)
+         (ruby-mode . hs-minor-mode)))
 
 (use-package rainbow-delimiters
   :ensure t
@@ -196,6 +291,7 @@
 
 (use-package which-key
   :ensure t
+  :delight (which-key-mode)
   :config (which-key-mode))
 
 (use-package ivy
@@ -248,13 +344,16 @@
 (use-package company
   :ensure t
   :hook (after-init . global-company-mode)
+  :delight (company-mode)
   :config
-  (setq company-dabbrev-downcase nil))
+  (setq company-dabbrev-downcase nil
+        company-require-match nil))
 
 (use-package multiple-cursors
   :ensure t
   :bind (("M-." . mc/mark-next-like-this-word)
-         ("M-," . mc/mark-previous-like-this-word))
+         ("M-," . mc/mark-previous-like-this-word)
+         ("C-M-<mouse-1>" . mc/add-cursor-on-click))
   :hook (prog-mode . multiple-cursors-mode))
 
 (use-package web-mode
@@ -269,21 +368,15 @@
   :mode (("\\.html?\\'" . web-mode)
          ("\\.erb\\'" . web-mode)))
 
-(windmove-default-keybindings)
+(when (executable-find "aspell")
+  (setq-default ispell-program-name "aspell")
+  (add-hook 'org-mode-hook (lambda ()
+                             (flyspell-mode 1))))
 
-;; aliases
-(defalias 'list-buffers 'ibuffer)
-(defalias 'yes-or-no-p 'y-or-n-p)
-(defalias 'eb 'eval-buffer)
-
-;; disable auto-save and auto-backup
-(setq auto-save-default nil)
-(setq make-backup-files nil)
-(setq create-lockfiles nil)
-
-(setq ruby-insert-encoding-magic-comment nil)
-
-(delete-selection-mode 1)
+(eval-after-load "flyspell"
+  '(progn
+     (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+     (define-key flyspell-mouse-map [mouse-3] #'undefined)))
 
 ;; move lines around
 (defmacro save-column (&rest body)
@@ -384,15 +477,13 @@ there's a region, all lines that region covers will be duplicated."
 
 (global-set-key (kbd "C-c d") 'duplicate-current-line-or-region)
 
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(eval-after-load "hideshow"
+  '(add-to-list 'hs-special-modes-alist
+              `(ruby-mode
+                ,(rx (or "def" "class" "module" "do" "{" "[" "if" "else" "unless")) ; Block start
+                ,(rx (or "}" "]" "end"))                       ; Block end
+                ,(rx (or "#" "=begin"))                        ; Comment start
+                ruby-forward-sexp nil)))
 
-;; highlight redundant whitespace
-(add-hook 'prog-mode-hook (lambda ()
-                            (interactive)
-                            (setq show-trailing-whitespace 1)))
-
-(put 'downcase-region 'disabled nil)
-
-;; Reset default values
-(add-hook 'emacs-startup-hook 'my/reset-gc-threshold)
-(add-hook 'emacs-startup-hook 'my/reset-file-name-handler-alist)
+(global-set-key (kbd "C-c h") 'hs-hide-block)
+(global-set-key (kbd "C-c s") 'hs-show-block)
