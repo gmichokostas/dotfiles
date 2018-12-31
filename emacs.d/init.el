@@ -114,7 +114,6 @@
 
 ;; packages
 
-(use-package delight :ensure t)
 (use-package htmlize :ensure t)
 (use-package all-the-icons :ensure t)
 (use-package undo-tree :ensure t)
@@ -199,7 +198,6 @@
 
 (use-package git-gutter
   :ensure t
-  :delight (git-gutter-mode)
   :hook ((prog-mode . git-gutter-mode)
          (org-mode . git-gutter-mode)
          (yaml-mode . git-gutter-mode)))
@@ -313,12 +311,10 @@
 
 (use-package which-key
   :ensure t
-  :delight (which-key-mode)
   :config (which-key-mode))
 
 (use-package ivy
   :ensure t
-  :delight ivy-mode
   :bind (("C-c C-r" . ivy-resume))
   :config
   (ivy-mode 1)
@@ -356,7 +352,6 @@
 (use-package projectile
   :ensure t
   :init (setq projectile-completion-system 'ivy)
-  :delight '(:eval (concat " " (projectile-project-name)))
   :bind (("M-p" . projectile-find-file)
          ("M-t" . projectile-toggle-between-implementation-and-test))
   :config
@@ -365,7 +360,6 @@
 (use-package company
   :ensure t
   :hook (after-init . global-company-mode)
-  :delight (company-mode)
   :config
   (setq company-dabbrev-downcase nil
         company-require-match nil))
