@@ -30,17 +30,15 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
-(eval-when-compile (require 'use-package))
-
 ;; MacOS related
 (when (memq window-system '(mac ns darwin))
   ;; titlebar for MacOS
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (add-to-list 'default-frame-alist '(ns-appearance . dark))
   (require 'ls-lisp)
-  (setq ns-use-proxy-icon  nil)
-  (setq frame-title-format nil)
   (setq mac-option-key-is-meta nil ;; rebind Meta key to cmd
+        frame-title-format nil
+        ns-use-proxy-icon nil
         mac-command-key-is-meta t
         mac-command-modifier 'meta
         mac-option-modifier 'none
@@ -59,13 +57,11 @@
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
 
-
 ;; aliases
 
 (defalias 'list-buffers 'ibuffer)
 (defalias 'yes-or-no-p 'y-or-n-p)
 (defalias 'eb 'eval-buffer)
-
 
 ;; Better defaults
 
@@ -80,8 +76,12 @@
 
 (setq-default truncate-lines t
               indent-tabs-mode nil
-              require-final-newline t
-              frame-title-format "%f")
+              require-final-newline t)
+
+(setq frame-title-format
+      '((:eval (if (buffer-file-name)
+                   (abbreviate-file-name (buffer-file-name))
+                 "%b"))))
 
 (delete-selection-mode 1)
 
@@ -119,6 +119,22 @@
 (use-package all-the-icons :ensure t)
 (use-package undo-tree :ensure t)
 
+(use-package minions
+  :ensure t
+  :config
+  (setq minions-mode-line-lighter "[+]")
+  (minions-mode))
+
+(use-package doom-modeline
+  :ensure t
+  :defer t
+  :hook (after-init . doom-modeline-init)
+  :config
+  (setq doom-modeline-height 20
+        doom-modeline-buffer-file-name-style 'truncate-upto-root
+        doom-modeline-icon t
+        doom-modeline-minor-modes t))
+
 (use-package hungry-delete
   :ensure t
   :bind (("C-<backspace>" . hungry-delete-backward))
@@ -129,11 +145,18 @@
   :ensure t
   :hook ((rust-mode . company-mode))
   :config
-  (setq rust-format-on-save t))
+  (setq rust-format-on-save t
+        rust-rustfmt-bin "rustfmt"))
 
 (use-package racer
   :ensure t
-  :after rust-mode
+  :requires rust-mode
+  :init (progn
+          (require 'subr-x)
+          (setq racer-rust-src-path
+                (concat (string-trim
+                         (shell-command-to-string "rustc --print sysroot"))
+                        "/lib/rustlib/src/rust/src")))
   :hook ((rust-mode . racer-mode)
          (racer-mode . eldoc-mode)
          (racer-mode . company-mode)))
@@ -196,7 +219,6 @@
 
 (use-package ibuffer-vc
   :ensure t
-  :init
   :hook ((ibuffer-mode . (lambda ()
                            (ibuffer-vc-set-filter-groups-by-vc-root)
                            (unless (eq ibuffer-sorting-mode 'alphabetic)
@@ -333,8 +355,7 @@
 
 (use-package projectile
   :ensure t
-  :init
-  (setq projectile-completion-system 'ivy)
+  :init (setq projectile-completion-system 'ivy)
   :delight '(:eval (concat " " (projectile-project-name)))
   :bind (("M-p" . projectile-find-file)
          ("M-t" . projectile-toggle-between-implementation-and-test))
