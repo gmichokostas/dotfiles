@@ -124,15 +124,23 @@
   (setq minions-mode-line-lighter "[+]")
   (minions-mode))
 
+(use-package color-identifiers-mode
+  :ensure t
+  :hook (after-init . global-color-identifiers-mode))
+
 (use-package doom-modeline
   :ensure t
   :defer t
-  :hook (after-init . doom-modeline-init)
   :config
   (setq doom-modeline-height 20
+        doom-modeline-bar-width 3
         doom-modeline-buffer-file-name-style 'truncate-upto-root
+        doom-modeline-version nil
         doom-modeline-icon t
-        doom-modeline-minor-modes t))
+        doom-modeline-major-mode-color-icon t
+        doom-modeline-minor-modes t
+        doom-modeline-github nil)
+  :hook (after-init . doom-modeline-init))
 
 (use-package hungry-delete
   :ensure t
@@ -150,15 +158,14 @@
 (use-package racer
   :ensure t
   :requires rust-mode
-  :init (progn
-          (require 'subr-x)
-          (setq racer-rust-src-path
-                (concat (string-trim
-                         (shell-command-to-string "rustc --print sysroot"))
-                        "/lib/rustlib/src/rust/src")))
-  :hook ((rust-mode . racer-mode)
-         (racer-mode . eldoc-mode)
-         (racer-mode . company-mode)))
+  :hook ((racer-mode . eldoc-mode)
+         (racer-mode . company-mode)
+         (rust-mode . racer-mode))
+  :config
+  (require 'f)
+  (setq racer-cmd (f-expand "~/.cargo/bin/racer")
+        racer-rust-src-path
+        (f-expand "~/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src")))
 
 (use-package exec-path-from-shell
   :ensure t
