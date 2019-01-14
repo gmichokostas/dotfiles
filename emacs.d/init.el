@@ -22,7 +22,11 @@
 (setq package-enable-at-startup nil)
 (setq package-archives '(("org"   . "https://orgmode.org/elpa/")
                          ("gnu"   . "https://elpa.gnu.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/")))
+                         ("melpa" . "https://melpa.org/packages/"))
+      tls-checktrust t
+      tls-program '("gnutls-cli --x509cafile %t -p %p %h")
+      gnutls-verify-error t)
+
 (package-initialize)
 
 ;; Bootstrap `use-package`
@@ -49,7 +53,8 @@
 
 (setq org-hide-leading-stars t
       org-ellipsis "⤵")
-(setq apropos-sort-by-scores t)
+(setq apropos-sort-by-scores t
+      require-final-newline t)
 (global-prettify-symbols-mode 1)
 (global-auto-revert-mode 1) ;; reload file when it has changed in the disk
 (windmove-default-keybindings)
@@ -95,6 +100,8 @@
 
 (global-unset-key "\C-z")
 
+(global-set-key (kbd "C-<backspace>") 'just-one-space)
+
 ;; disable auto-save and auto-backup
 
 (setq auto-save-default nil
@@ -108,9 +115,26 @@
 (tool-bar-mode -1)
 (tooltip-mode -1)
 (scroll-bar-mode -1)
-(set-frame-font "Meslo LG M DZ for Powerline 15")
+(set-frame-font "Meslo LG M DZ for Powerline 15" t t)
 (show-paren-mode)
 (global-hl-line-mode t)
+
+;; modeline config
+(setq-default mode-line-format
+              '("%e"
+                mode-line-front-space
+                mode-line-mule-info
+                mode-line-client
+                mode-line-modified
+                mode-line-remote
+                mode-line-frame-identification
+                mode-line-buffer-identification " "
+                mode-line-position
+                minions-mode-line-modes
+                mode-line-misc-info " "
+                flymake--mode-line-format
+                vc-mode
+                mode-line-end-spaces))
 
 ;; packages
 
@@ -124,43 +148,19 @@
   (setq minions-mode-line-lighter "[+]")
   (minions-mode))
 
-(use-package color-identifiers-mode
-  :ensure t
-  :hook (after-init . global-color-identifiers-mode))
-
-(use-package doom-modeline
-  :ensure t
-  :defer t
-  :config
-  (setq doom-modeline-height 20
-        doom-modeline-bar-width 3
-        doom-modeline-buffer-file-name-style 'truncate-upto-root
-        doom-modeline-version nil
-        doom-modeline-icon t
-        doom-modeline-major-mode-color-icon t
-        doom-modeline-minor-modes t
-        doom-modeline-github nil)
-  :hook (after-init . doom-modeline-init))
-
-(use-package hungry-delete
-  :ensure t
-  :bind (("C-<backspace>" . hungry-delete-backward))
-  :config
-  (global-hungry-delete-mode))
-
 (use-package rust-mode
   :ensure t
-  :hook ((rust-mode . company-mode))
+  :hook ((rust-mode . company-mode)
+         (rust-mode . racer-mode))
   :config
   (setq rust-format-on-save t
+        company-tooltip-align-annotations t
         rust-rustfmt-bin "rustfmt"))
 
 (use-package racer
   :ensure t
-  :requires rust-mode
-  :hook ((racer-mode . eldoc-mode)
-         (racer-mode . company-mode)
-         (rust-mode . racer-mode))
+  :defer t
+  :hook ((racer-mode . eldoc-mode))
   :config
   (require 'f)
   (setq racer-cmd (f-expand "~/.cargo/bin/racer")
@@ -208,6 +208,13 @@
   :hook ((prog-mode . git-gutter-mode)
          (org-mode . git-gutter-mode)
          (yaml-mode . git-gutter-mode)))
+
+(use-package org
+  :ensure org-plus-contrib
+  :mode (("\\.org\\'" . org-mode))
+  :config
+  (setq org-agenda-include-diary t
+        org-default-notes-file "~/org/notes"))
 
 (use-package org-bullets
   :ensure t
@@ -262,6 +269,7 @@
   :bind (([f8] . neotree-toggle))
   :config
   (setq projectile-switch-project-action 'neotree-projectile-action
+        neo-window-fixed-size nil
         neo-smart-open t))
 
 (use-package yaml-mode
@@ -269,10 +277,17 @@
   :mode (("\\.yml\\'" . yaml-mode)
          ("\\.yaml\\'" . yaml-mode)))
 
+(use-package json-mode
+  :ensure t
+  :hook ((json-mode . (lambda () (make-local-variable 'js-indent-level)
+                        (setq js-indent-level 2))))
+  :mode (("\\.json\\'" . json-mode)))
+
 (use-package doom-themes
   :ensure t
   :config
   (doom-themes-neotree-config)
+  (doom-themes-org-config)
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t
         doom-one-brighter-modeline t
@@ -325,12 +340,14 @@
   :bind (("C-c C-r" . ivy-resume))
   :config
   (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t)
-  (setq enable-recursive-minibuffers t))
+  (setq ivy-use-virtual-buffers t
+        ivy-format-function 'ivy-format-function-arrow
+        enable-recursive-minibuffers t))
 
 (use-package counsel
   :ensure t
   :bind(("M-x" . counsel-M-x)
+        ("C-c l" . counsel-semantic-or-imenu)
         ("C-x C-f" . counsel-find-file)
         ("<f1> f" . counsel-describe-function)
         ("<f1> v" . counsel-describe-variable)
@@ -390,6 +407,22 @@
   :mode (("\\.html?\\'" . web-mode)
          ("\\.erb\\'" . web-mode)))
 
+(use-package elfeed
+  :ensure t
+  :defer t
+  :hook ((elfeed-new-entry . (lambda () (elfeed-make-tagger :before "3 weeks ago"
+				                       :remove 'eunread))))
+  :config
+  (setq elfeed-feeds
+        '("https://www.youtube.com/feeds/videos.xml?channel_id=UCMGXFEew8I6gzjg3tWen4Gw"
+          "https://nullprogram.com/feed/"
+          "https://www.masteringemacs.org/feed/"
+          "https://planet.emacsen.org/atom.xml"
+          "https://www.reddit.com/r/emacs/.rss"
+          "https://emacsnotes.wordpress.com/feed/")))
+
+
+
 (when (executable-find "aspell")
   (setq-default ispell-program-name "aspell")
   (add-hook 'org-mode-hook (lambda ()
@@ -447,8 +480,8 @@
   (interactive "r\np")
   (move-region start end (if (null n) 1 n)))
 
-(global-set-key (kbd "M-C-<up>") 'move-region-up)
-(global-set-key (kbd "M-C-<down>") 'move-region-down)
+(global-set-key (kbd "M-S-<up>") 'move-region-up)
+(global-set-key (kbd "M-S-<down>") 'move-region-down)
 
 (global-set-key (kbd "M-j") 'clipboard-yank) ;; paste from clipboard
 (global-set-key (kbd "M-;") 'comment-line) ;; rebind add comment key combo
