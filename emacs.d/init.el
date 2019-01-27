@@ -43,6 +43,7 @@
   (setq mac-option-key-is-meta nil ;; rebind Meta key to cmd
         frame-title-format nil
         ns-use-proxy-icon nil
+        ns-use-thin-smoothing t
         mac-command-key-is-meta t
         mac-command-modifier 'meta
         mac-option-modifier 'none
@@ -77,9 +78,13 @@
  load-prefer-newer t
  ring-bell-function 'ignore
  select-enable-clipboard t
+ mouse-select-region-move-to-beginning t
+ mouse-drag-and-drop-region t
+ list-matching-lines-jump-to-current-line t
  inhibit-startup-screen t)
 
-(setq-default truncate-lines t
+(setq-default cursor-type 'bar
+              truncate-lines t
               indent-tabs-mode nil
               require-final-newline t)
 
@@ -154,8 +159,7 @@
          (rust-mode . racer-mode))
   :config
   (setq rust-format-on-save t
-        company-tooltip-align-annotations t
-        rust-rustfmt-bin "rustfmt"))
+        company-tooltip-align-annotations t))
 
 (use-package racer
   :ensure t
@@ -277,6 +281,13 @@
   :mode (("\\.yml\\'" . yaml-mode)
          ("\\.yaml\\'" . yaml-mode)))
 
+(use-package js2-mode
+  :ensure t
+  :hook ((js2-mode . js2-imenu-extras-mode))
+  :mode (("\\.js\\'" . js2-mode))
+  :config
+  (setq js2-basic-offset 2))
+
 (use-package json-mode
   :ensure t
   :hook ((json-mode . (lambda () (make-local-variable 'js-indent-level)
@@ -292,13 +303,15 @@
         doom-themes-enable-italic t
         doom-one-brighter-modeline t
         doom-one-brighter-comments t
+        doom-nord-comment-bg t
+        doom-nord-brighter-modeline t
         doom-neotree-enable-folder-icons t
         doom-neotree-enable-file-icons t
         doom-neotree-enable-chevron-icons t
         doom-neotree-project-size 1
         doom-neotree-folder-size 1
         doom-neotree-chevron-size 0.6)
-  (load-theme 'doom-one t))
+  (load-theme 'doom-nord t))
 
 (use-package cider
   :ensure t
@@ -417,7 +430,7 @@
         '("https://www.youtube.com/feeds/videos.xml?channel_id=UCMGXFEew8I6gzjg3tWen4Gw"
           "https://nullprogram.com/feed/"
           "https://www.masteringemacs.org/feed/"
-          "https://planet.emacsen.org/atom.xml"
+          "http://planet.emacsen.org/atom.xml"
           "https://www.reddit.com/r/emacs/.rss"
           "https://emacsnotes.wordpress.com/feed/")))
 
