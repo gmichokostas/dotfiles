@@ -5,7 +5,7 @@ syntax enable             " enable syntax highlight
 
 set number      " show line numbers
 set mouse=a     " enable mouse
-set cursorline  " highlight the current line 
+set cursorline  " highlight the current line
 set scrolloff=3 " Minimal number of screen lines to keep above and below the cursor.
 set colorcolumn=80
 set noswapfile " disable swap files
@@ -16,12 +16,12 @@ set cpoptions+=$
 set hlsearch " When there is a previous search pattern, highlight all its matches.
 set incsearch
 set ignorecase
-set smartcase     
+set smartcase
 set expandtab
 set autoindent
 set hidden
 set encoding=utf-8
-set timeoutlen=300 
+set timeoutlen=300
 set lazyredraw " redraw onlw when needed<Paste>
 
 " Show hidden characters
@@ -33,7 +33,7 @@ call plug#begin('~/.local/share/nvim/plugged')
 
 " Color settings
 Plug 'chriskempson/base16-vim'
-Plug 'joshdick/onedark.vim' 
+Plug 'joshdick/onedark.vim'
 Plug 'itchyny/lightline.vim'
 
 " Fuzzy finder
@@ -48,8 +48,9 @@ Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'junegunn/vim-easy-align'
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-commentary' 
-Plug 'tpope/vim-surround' 
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-surround'
+Plug 'jiangmiao/auto-pairs'
 
 " Languages support
 Plug 'rust-lang/rust.vim'
@@ -58,18 +59,18 @@ Plug 'plasticboy/vim-markdown'
 Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
 Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
 Plug 'tpope/vim-rails'
-Plug 'posva/vim-vue' 
+Plug 'posva/vim-vue'
 
 call plug#end()
 
 " Colors
 set background=dark
 let g:onedark_terminal_italics=1
-colorscheme onedark   
+colorscheme onedark
 
 if (has("termguicolors"))
-	set termguicolors 
-endif  
+	set termguicolors
+endif
 
 " Lightline config
 let g:lightline = {
@@ -78,10 +79,10 @@ let g:lightline = {
       \ },
 \ }
 function! LightlineFilename()
-	return expand('%:t') !=# '' ? @% : '[No Name]'
+        return expand('%:t') !=# '' ? @% : '[No Name]'
 endfunction
 
-" No arrow keys 
+" No arrow keys
 nnoremap <up>    <nop>
 nnoremap <down>  <nop>
 inoremap <up>    <nop>
@@ -102,9 +103,10 @@ let g:ale_linters = {
 " Rust
 let g:rustfmt_command = "rustfmt +nightly"
 let g:racer_experimental_completer = 1
-let g:rustfmt_autosave = 1    
+let g:rustfmt_autosave = 1
 
 " go section
+
 let g:go_highlight_functions = 1
 let g:go_highlight_methods = 1
 let g:go_highlight_fields = 1
@@ -113,12 +115,12 @@ let g:go_highlight_extra_types = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
 let g:go_fmt_command = "goimports"
-let g:go_fmt_autosave = 1  
+let g:go_fmt_autosave = 1
 
 if has("persistent_undo")
   set undodir=~/.undodir/
   set undofile
-endif        
+endif
 
 if executable('ag')
 	set grepprg=ag\ --nogroup\ --nocolor
@@ -157,15 +159,15 @@ command! -bang -nargs=? -complete=dir Files
 " Key mappings
 "
 " ctrl+p open fzf files
-noremap <c-p> :Files<CR>  
+noremap <c-p> :Files<CR>
 
 " Ripgrep
 noremap <leader>s :Rg
 
-" Start interactive EasyAlign in visual mode 
+" Start interactive EasyAlign in visual mode
 vnoremap ga <Plug>(EasyAlign)
 
-" Start interactive EasyAlign for a motion/text object 
+" Start interactive EasyAlign for a motion/text object
 nnoremap ga <Plug>(EasyAlign)
 
 " Delete current line in insert mode
@@ -178,10 +180,10 @@ inoremap <c-u> <esc>viwUi
 nnoremap <c-u> viwU<esc>
 
 " Add blank line below cursor
-nnoremap <leader>o o<esc> 
+nnoremap <leader>o o<esc>
 
 " Add blank line below cursor
-nnoremap <leader>b O<esc> 
+nnoremap <leader>b O<esc>
 
 " Quick edit vim settings file
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
@@ -207,3 +209,24 @@ nnoremap <leader><leader> <c-^>
 
 " <leader>, shows/hides hidden characters
 noremap <leader>, :set invlist<cr>
+
+" Copy to clipboard
+vnoremap  <leader>y  "+y
+nnoremap  <leader>y  "+y
+nnoremap  <leader>yy  "+yy
+
+" Paste from clipboard
+nnoremap <leader>p "+p
+vnoremap <leader>p "+p
+vnoremap <leader>P "+P
+
+" Strip trailing spaces on save
+function! StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+
+autocmd BufWritePre * :call StripTrailingWhitespaces()
+
