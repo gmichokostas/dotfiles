@@ -1,3 +1,4 @@
+nnoremap <space> <nop>
 let mapleader = "\<Space>"
 
 filetype indent plugin on " enable file type detection
@@ -22,18 +23,19 @@ set autoindent
 set hidden
 set encoding=utf-8
 set timeoutlen=300
-set lazyredraw " redraw onlw when needed<Paste>
+set lazyredraw  " redraw onlw when needed<Paste>
+set autoread    " Reload unchanged files automatically
+set secure      " Limit what modelines and autocmds can do
+set smartindent " Do smart auto-indenting when starting a new line
 
 " Show hidden characters
-" Verbose: set listchars=nbsp:¬,eol:¶,extends:»,precedes:«,trail:•
 set nolist
 set listchars=nbsp:¬,extends:»,precedes:«,trail:•
 
 call plug#begin('~/.local/share/nvim/plugged')
 
 " Color settings
-Plug 'chriskempson/base16-vim'
-Plug 'joshdick/onedark.vim'
+Plug 'mhartington/oceanic-next'
 Plug 'itchyny/lightline.vim'
 
 " Fuzzy finder
@@ -45,28 +47,31 @@ Plug 'junegunn/fzf.vim'
 Plug 'w0rp/ale'
 Plug 'machakann/vim-highlightedyank'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'junegunn/vim-easy-align'
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
-Plug 'jiangmiao/auto-pairs'
+Plug 'tpope/vim-endwise'
 
 " Languages support
 Plug 'rust-lang/rust.vim'
 Plug 'fatih/vim-go'
 Plug 'plasticboy/vim-markdown'
-Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
+Plug 'vim-ruby/vim-ruby',   { 'for': 'ruby' }
+Plug 'kovisoft/paredit',    { 'for': ['clojure', 'scheme'] }
 Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
 Plug 'tpope/vim-rails'
 Plug 'posva/vim-vue'
+Plug 'pangloss/vim-javascript',  { 'for': 'javascript' }
+Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
 
 call plug#end()
 
 " Colors
 set background=dark
-let g:onedark_terminal_italics=1
-colorscheme onedark
+let g:oceanic_next_terminal_bold = 1
+let g:oceanic_next_terminal_italic = 1
+colorscheme OceanicNext
 
 if (has("termguicolors"))
 	set termguicolors
@@ -74,13 +79,14 @@ endif
 
 " Lightline config
 let g:lightline = {
-      \ 'component_function': {
-      \   'filename': 'LightlineFilename',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
       \ },
-\ }
-function! LightlineFilename()
-        return expand('%:t') !=# '' ? @% : '[No Name]'
-endfunction
+      \ 'component_function': {
+      \   'gitbranch': 'fugitive#head'
+      \ },
+      \ }
 
 " No arrow keys
 nnoremap <up>    <nop>
@@ -98,6 +104,7 @@ let g:ale_linters = {
       \ 'c': ['clang'],
       \ 'cpp': ['clang'],
       \ 'ruby': ['ruby'],
+      \ 'javascript': ['eslint'],
       \}
 
 " Rust
@@ -106,7 +113,6 @@ let g:racer_experimental_completer = 1
 let g:rustfmt_autosave = 1
 
 " go section
-
 let g:go_highlight_functions = 1
 let g:go_highlight_methods = 1
 let g:go_highlight_fields = 1
@@ -164,12 +170,6 @@ noremap <c-p> :Files<CR>
 " Ripgrep
 noremap <leader>s :Rg
 
-" Start interactive EasyAlign in visual mode
-vnoremap ga <Plug>(EasyAlign)
-
-" Start interactive EasyAlign for a motion/text object
-nnoremap ga <Plug>(EasyAlign)
-
 " Delete current line in insert mode
 inoremap <c-d> <esc>ddi
 
@@ -191,14 +191,24 @@ nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 " Source vim settings file
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
+" Easy access to the begining of line
+nnoremap 0 ^
+
 " esc insert mode
 inoremap jk <esc>
+
+" Easily navigate in wrapped lines
+nnoremap j gj
+nnoremap k gk
 
 " Quick save
 noremap <leader>w :w<cr>
 
+" Quick quit
+noremap <leader>k :q<cr>
+
 " Show buffers
-noremap <leader><space> :Buffers<cr>
+noremap <leader>; :Buffers<cr>
 
 " Left and right can switch buffers
 nnoremap <left> :bp<cr>
@@ -213,20 +223,22 @@ noremap <leader>, :set invlist<cr>
 " Copy to clipboard
 vnoremap  <leader>y  "+y
 nnoremap  <leader>y  "+y
-nnoremap  <leader>yy  "+yy
 
 " Paste from clipboard
 nnoremap <leader>p "+p
 vnoremap <leader>p "+p
-vnoremap <leader>P "+P
 
 " Strip trailing spaces on save
 function! StripTrailingWhitespaces()
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    call cursor(l, c)
-endfun
+    let l:save = winsaveview()
+    %s/\\\@<!\s\+$//e
+    call winrestview(l:save)
+endfunction
 
 autocmd BufWritePre * :call StripTrailingWhitespaces()
 
+highlight ExtraWhitespace ctermbg=grey guibg=grey
+" Show trailing whitespace and spaces before a tab"
+match ExtraWhitespace /\s\+$\| \+\ze\t/
+
+autocmd Filetype help nnoremap <buffer> q :q<cr>
