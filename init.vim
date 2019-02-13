@@ -5,6 +5,7 @@ filetype indent plugin on " enable file type detection
 syntax enable             " enable syntax highlight
 
 set number      " show line numbers
+set relativenumber
 set mouse=a     " enable mouse
 set cursorline  " highlight the current line
 set scrolloff=3 " Minimal number of screen lines to keep above and below the cursor.
@@ -27,6 +28,7 @@ set lazyredraw  " redraw onlw when needed<Paste>
 set autoread    " Reload unchanged files automatically
 set secure      " Limit what modelines and autocmds can do
 set smartindent " Do smart auto-indenting when starting a new line
+set title
 
 " Show hidden characters
 set nolist
@@ -177,7 +179,7 @@ inoremap <c-d> <esc>ddi
 inoremap <c-u> <esc>viwUi
 
 " Upcase current word in normal mode
-nnoremap <c-u> viwU<esc>
+nnoremap <leader>u viwU<esc>
 
 " Add blank line below cursor
 nnoremap <leader>o o<esc>
