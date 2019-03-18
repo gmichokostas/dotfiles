@@ -4,18 +4,18 @@ let mapleader = "\<Space>"
 filetype indent plugin on " enable file type detection
 syntax enable             " enable syntax highlight
 
-set number          " show line numbers
+set number      " show line numbers
 set relativenumber
-set mouse=a         " enable mouse
-set cursorline      " highlight the current line
-set scrolloff=3     " Minimal number of screen lines to keep above and below the cursor.
+set mouse=a     " enable mouse
+set cursorline  " highlight the current line
+set scrolloff=3 " Minimal number of screen lines to keep above and below the cursor.
 set colorcolumn=80
-set noswapfile      " disable swap files
-set showcmd         " show command in the last line of the screen
+set noswapfile " disable swap files
+set showcmd    " show command in the last line of the screen
 set wildmenu
 set wildmode=longest,full,full
 set cpoptions+=$
-set hlsearch        " When there is a previous search pattern, highlight all its matches.
+set hlsearch " When there is a previous search pattern, highlight all its matches.
 set incsearch
 set ignorecase
 set smartcase
@@ -24,12 +24,12 @@ set autoindent
 set hidden
 set encoding=utf-8
 set timeoutlen=300
-set lazyredraw      " redraw onlw when needed<Paste>
-set autoread        " Reload unchanged files automatically
-set secure          " Limit what modelines and autocmds can do
-set smartindent     " Do smart auto-indenting when starting a new line
+set lazyredraw  " redraw onlw when needed<Paste>
+set autoread    " Reload unchanged files automatically
+set secure      " Limit what modelines and autocmds can do
+set smartindent " Do smart auto-indenting when starting a new line
 set title
-set nojoinspaces    " Do not insert two spaces after '.' when using J
+set nojoinspaces " Do not insert two spaces after '.' when using J
 set softtabstop=2
 set tabstop=2
 set shiftwidth=2
@@ -174,9 +174,10 @@ command! -bang -nargs=* Ag
 command! -bang -nargs=? -complete=dir Files
       \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 
+
 " Key mappings
 "
-" ctrl+p open fzf files
+" leader+f open fzf files
 noremap <leader>f :Files<cr>
 
 " Ripgrep
@@ -249,6 +250,9 @@ nnoremap <leader>t :NERDTreeFind<cr>
 " NERDTreeToggle
 nnoremap <leader>e :NERDTreeToggle<cr>
 
+" Open the definition in a vertical split
+nnoremap <C-\> :vsp <cr>:exec("tag ".expand("<cword>"))<cr>
+
 " Strip trailing spaces on save
 function! StripTrailingWhitespaces()
   let l:save = winsaveview()
@@ -270,3 +274,4 @@ augroup END
 
 " Fixes vue plugin identation
 autocmd BufRead,BufNewFile *.vue set filetype=html
+
