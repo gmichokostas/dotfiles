@@ -59,6 +59,10 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-dispatch'
+Plug 'qpkorr/vim-bufkill'
+Plug 'janko-m/vim-test'
+
 
 " Languages support
 Plug 'rust-lang/rust.vim'
@@ -174,6 +178,9 @@ command! -bang -nargs=* Ag
 command! -bang -nargs=? -complete=dir Files
       \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 
+" vim-test strategy
+let test#strategy = "neovim"
+let test#neovim#term_position = "vsplit"
 
 " Key mappings
 "
@@ -252,6 +259,13 @@ nnoremap <leader>e :NERDTreeToggle<cr>
 
 " Open the definition in a vertical split
 nnoremap <C-\> :vsp <cr>:exec("tag ".expand("<cword>"))<cr>
+
+" vim-test mappings
+nnoremap <C-n> :TestNearest<cr>
+nnoremap <C-f> :TestFile<cr>
+nnoremap <C-s> :TestSuite<cr>
+nnoremap <C-l> :TestLast<cr>
+nnoremap <C-g> :TestVisit<cr>
 
 " Strip trailing spaces on save
 function! StripTrailingWhitespaces()
