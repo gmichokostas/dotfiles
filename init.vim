@@ -33,6 +33,9 @@ set nojoinspaces " Do not insert two spaces after '.' when using J
 set softtabstop=2
 set tabstop=2
 set shiftwidth=2
+set foldmethod=syntax " Fold config
+set nofoldenable
+
 
 " Show hidden characters
 set nolist
@@ -129,6 +132,10 @@ let g:rustfmt_command = "rustfmt +nightly"
 let g:racer_experimental_completer = 1
 let g:rustfmt_autosave = 1
 
+" Ruby conf
+let g:ruby_indent_block_style = 'do'
+let g:ruby_indent_assignment_style = 'variable'
+
 " go section
 let g:go_highlight_functions = 1
 let g:go_highlight_methods = 1
@@ -194,7 +201,7 @@ noremap <leader>s :Rg<space>
 inoremap <c-d> <esc>ddi
 
 " Upcase current word in insert mode
-inoremap <c-u> <esc>viwUi
+inoremap <c-u> <esc>viwUA
 
 " Upcase current word in normal mode
 nnoremap <leader>u viwU<esc>
@@ -241,7 +248,10 @@ nnoremap <right> :bn<cr>
 nnoremap <leader><leader> <c-^>
 
 " <leader>, shows/hides hidden characters
-noremap <leader>, :set invlist<cr>
+nnoremap <leader>, :set invlist<cr>
+
+" <leader>i indent the entire file
+nnoremap <leader>i magg=G`a
 
 " Copy to clipboard
 vnoremap  <leader>y  "+y
@@ -277,6 +287,7 @@ endfunction
 autocmd BufWritePre * :call StripTrailingWhitespaces()
 autocmd Filetype help nnoremap <buffer> q :q<cr>
 autocmd FocusGained * silent! checktime
+autocmd BufWritePre <buffer> :%s/\($\n\s*\)\+\%$//e
 
 " Lisp config
 let g:rainbow_active = 0
