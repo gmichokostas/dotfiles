@@ -1,2 +1,2 @@
-gem: --no-rdoc --no-ri
-:verbose: true
+gem: --no-document
+verbose: true
