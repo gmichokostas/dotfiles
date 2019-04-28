@@ -36,7 +36,6 @@ set shiftwidth=2
 set foldmethod=syntax " Fold config
 set nofoldenable
 
-
 " Show hidden characters
 set nolist
 set listchars=nbsp:¬,extends:»,precedes:«,trail:•
@@ -66,15 +65,14 @@ Plug 'tpope/vim-dispatch'
 Plug 'qpkorr/vim-bufkill'
 Plug 'janko-m/vim-test'
 
-
 " Languages support
 Plug 'rust-lang/rust.vim'
 Plug 'fatih/vim-go'
 Plug 'plasticboy/vim-markdown'
 Plug 'vim-ruby/vim-ruby',    { 'for': 'ruby' }
 Plug 'tpope/vim-fireplace',  { 'for': 'clojure' }
-Plug 'luochen1990/rainbow',  { 'for': 'clojure' }
 Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rhubarb'
 Plug 'posva/vim-vue'
 Plug 'pangloss/vim-javascript',  { 'for': 'javascript' }
 Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
@@ -251,7 +249,7 @@ nnoremap <leader><leader> <c-^>
 nnoremap <leader>, :set invlist<cr>
 
 " <leader>i indent the entire file
-nnoremap <leader>i magg=G`a
+nnoremap <leader>i magg=G`azz
 
 " Copy to clipboard
 vnoremap  <leader>y  "+y
@@ -288,15 +286,3 @@ autocmd BufWritePre * :call StripTrailingWhitespaces()
 autocmd Filetype help nnoremap <buffer> q :q<cr>
 autocmd FocusGained * silent! checktime
 autocmd BufWritePre <buffer> :%s/\($\n\s*\)\+\%$//e
-
-" Lisp config
-let g:rainbow_active = 0
-
-augroup rainbow_lisp
-  autocmd!
-  autocmd FileType lisp,clojure,scheme RainbowToggleOn
-augroup END
-
-" Fixes vue plugin identation
-autocmd BufRead,BufNewFile *.vue set filetype=html
-
