@@ -106,14 +106,6 @@ let g:lightline = {
       \ },
       \ }
 
-" No arrow keys
-nnoremap <up>    <nop>
-nnoremap <down>  <nop>
-inoremap <up>    <nop>
-inoremap <down>  <nop>
-inoremap <left>  <nop>
-inoremap <right> <nop>
-
 " Ale settings
 let g:ale_lint_on_save = 1
 let g:ale_sign_warning = '▲'
@@ -144,6 +136,9 @@ let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
 let g:go_fmt_command = "goimports"
 let g:go_fmt_autosave = 1
+
+" goyo config
+let g:goyo_width = 120
 
 if has("persistent_undo")
   set undodir=~/.undodir/
@@ -199,7 +194,7 @@ noremap <leader>s :Rg<space>
 inoremap <c-d> <esc>ddi
 
 " Upcase current word in insert mode
-inoremap <c-u> <esc>viwUA
+inoremap <c-u> <esc>viwUea
 
 " Upcase current word in normal mode
 nnoremap <leader>u viwU<esc>
@@ -214,7 +209,7 @@ nnoremap <leader>b O<esc>
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 
 " Source vim settings file
-nnoremap <leader>sv :source $MYVIMRC<cr>
+nnoremap <leader>r :source $MYVIMRC<cr>
 
 " Easy access to the begining of line
 nnoremap 0 ^
@@ -272,8 +267,26 @@ nnoremap <C-\> :vsp <cr>:exec("tag ".expand("<cword>"))<cr>
 nnoremap <C-n> :TestNearest<cr>
 nnoremap <C-f> :TestFile<cr>
 nnoremap <C-s> :TestSuite<cr>
-nnoremap <C-l> :TestLast<cr>
 nnoremap <C-g> :TestVisit<cr>
+
+" No arrow keys
+nnoremap <up>    <nop>
+nnoremap <down>  <nop>
+inoremap <up>    <nop>
+inoremap <down>  <nop>
+inoremap <left>  <nop>
+inoremap <right> <nop>
+
+" Move around splits with <c-hjkl>
+nnoremap <c-j> <c-w>j
+nnoremap <c-k> <c-w>k
+nnoremap <c-h> <c-w>h
+nnoremap <c-l> <c-w>l
+
+" Align selected lines
+vnoremap <leader>i ma=`a
+" Close all other splits
+nnoremap <leader>a :only<cr>
 
 " Strip trailing spaces on save
 function! StripTrailingWhitespaces()
