@@ -67,7 +67,6 @@ Plug 'janko-m/vim-test'
 
 " Languages support
 Plug 'rust-lang/rust.vim'
-Plug 'fatih/vim-go'
 Plug 'plasticboy/vim-markdown'
 Plug 'vim-ruby/vim-ruby',    { 'for': 'ruby' }
 Plug 'tpope/vim-fireplace',  { 'for': 'clojure' }
@@ -125,17 +124,6 @@ let g:rustfmt_autosave = 1
 " Ruby conf
 let g:ruby_indent_block_style = 'do'
 let g:ruby_indent_assignment_style = 'variable'
-
-" go section
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_fields = 1
-let g:go_highlight_types = 1
-let g:go_highlight_extra_types = 1
-let g:go_highlight_operators = 1
-let g:go_highlight_build_constraints = 1
-let g:go_fmt_command = "goimports"
-let g:go_fmt_autosave = 1
 
 " goyo config
 let g:goyo_width = 120
