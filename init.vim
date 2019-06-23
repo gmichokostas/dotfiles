@@ -24,10 +24,10 @@ set autoindent
 set hidden
 set encoding=utf-8
 set timeoutlen=300
-set lazyredraw  " redraw onlw when needed<Paste>
-set autoread    " Reload unchanged files automatically
-set secure      " Limit what modelines and autocmds can do
-set smartindent " Do smart auto-indenting when starting a new line
+set lazyredraw   " redraw only when needed<Paste>
+set autoread     " Reload unchanged files automatically
+set secure       " Limit what modelines and autocmds can do
+set smartindent  " Do smart auto-indenting when starting a new line
 set title
 set nojoinspaces " Do not insert two spaces after '.' when using J
 set softtabstop=2
@@ -35,6 +35,12 @@ set tabstop=2
 set shiftwidth=2
 set foldmethod=syntax " Fold config
 set nofoldenable
+
+set spelllang=en_us                         " set en_us as the default spell checking language
+set spellfile=$HOME/.vim-spell-en.utf-8.add " location to save the 'good' words
+autocmd BufRead,BufNewFile *.md set filetype=markdown
+autocmd FileType markdown setlocal spell    " Spell-check Markdown files
+autocmd FileType gitcommit setlocal spell   " Spell-check Git messages
 
 " Show hidden characters
 set nolist
@@ -46,7 +52,6 @@ call plug#begin('~/.local/share/nvim/plugged')
 Plug 'itchyny/lightline.vim'
 Plug 'chriskempson/base16-vim'
 
-" Fuzzy finder
 Plug 'airblade/vim-rooter'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
