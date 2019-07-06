@@ -35,6 +35,7 @@ set tabstop=2
 set shiftwidth=2
 set foldmethod=syntax " Fold config
 set nofoldenable
+set clipboard^=unnamed " Share clipboard with system
 
 set spelllang=en_us                         " set en_us as the default spell checking language
 set spellfile=$HOME/.vim-spell-en.utf-8.add " location to save the 'good' words
