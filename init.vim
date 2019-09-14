@@ -68,6 +68,7 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-rhubarb'
 Plug 'qpkorr/vim-bufkill'
 Plug 'janko-m/vim-test'
 
@@ -77,10 +78,10 @@ Plug 'plasticboy/vim-markdown'
 Plug 'vim-ruby/vim-ruby',    { 'for': 'ruby' }
 Plug 'tpope/vim-fireplace',  { 'for': 'clojure' }
 Plug 'tpope/vim-rails'
-Plug 'tpope/vim-rhubarb'
 Plug 'posva/vim-vue'
 Plug 'pangloss/vim-javascript',  { 'for': 'javascript' }
 Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
+Plug 'fatih/vim-go',             { 'for': 'go', 'do': ':GoUpdateBinaries' }
 Plug 'othree/html5.vim'
 
 call plug#end()
@@ -112,7 +113,8 @@ let g:lightline = {
       \ }
 
 " Ale settings
-let g:ale_lint_on_save = 1
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_insert_leave = 0
 let g:ale_sign_warning = '▲'
 let g:ale_sign_error   = '✗'
 let g:ale_linters = {
@@ -281,6 +283,10 @@ nnoremap <c-l> <c-w>l
 vnoremap <leader>i ma=`a
 " Close all other splits
 nnoremap <leader>a :only<cr>
+
+" vim-commentary
+nnoremap <leader>/ :Commentary<cr>
+vnoremap <leader>/ :Commentary<cr>
 
 " Strip trailing spaces on save
 function! StripTrailingWhitespaces()
