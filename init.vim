@@ -21,6 +21,7 @@ set ignorecase
 set smartcase
 set expandtab
 set autoindent
+set autochdir
 set hidden
 set encoding=utf-8
 set timeoutlen=300
@@ -52,6 +53,7 @@ call plug#begin('~/.local/share/nvim/plugged')
 " Color settings
 Plug 'itchyny/lightline.vim'
 Plug 'chriskempson/base16-vim'
+Plug 'sonph/onehalf', {'rtp': 'vim/'}
 
 Plug 'airblade/vim-rooter'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
@@ -61,7 +63,6 @@ Plug 'junegunn/fzf.vim'
 Plug 'w0rp/ale'
 Plug 'junegunn/goyo.vim'
 Plug 'machakann/vim-highlightedyank'
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
@@ -69,6 +70,7 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-rhubarb'
+Plug 'tpope/vim-vinegar'
 Plug 'qpkorr/vim-bufkill'
 Plug 'janko-m/vim-test'
 
@@ -88,11 +90,18 @@ call plug#end()
 
 " Colors
 set background=dark
-if filereadable(expand("~/.vimrc_background"))
-  let base16colorspace=256
-  source ~/.vimrc_background
+colorscheme onehalfdark
+if exists('+termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
 endif
-set termguicolors
+
+" if filereadable(expand("~/.vimrc_background"))
+"   let base16colorspace=256
+"   source ~/.vimrc_background
+" endif
+" set termguicolors
 
 highlight VertSplit ctermbg=NONE guibg=NONE
 highlight Comment gui=italic
@@ -102,7 +111,7 @@ match ExtraWhitespace /\s\+$\| \+\ze\t/
 
 " Lightline config
 let g:lightline = {
-      \ 'colorscheme': 'jellybeans',
+      \ 'colorscheme': 'onehalfdark',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
       \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
@@ -249,12 +258,6 @@ nnoremap  <leader>y  "+y
 " Paste from clipboard
 nnoremap <leader>p "+p
 vnoremap <leader>p "+p
-
-" NERDTree Reveal file in tree
-nnoremap <leader>t :NERDTreeFind<cr>
-
-" NERDTreeToggle
-nnoremap <leader>e :NERDTreeToggle<cr>
 
 " Open the definition in a vertical split
 nnoremap <C-\> :vsp <cr>:exec("tag ".expand("<cword>"))<cr>
