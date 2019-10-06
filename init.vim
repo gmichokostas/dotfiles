@@ -1,3 +1,5 @@
+autocmd!
+
 nnoremap <space> <nop>
 let mapleader = "\<Space>"
 
@@ -40,13 +42,10 @@ set clipboard^=unnamed " Share clipboard with system
 
 set spelllang=en_us                         " set en_us as the default spell checking language
 set spellfile=$HOME/.vim-spell-en.utf-8.add " location to save the 'good' words
-autocmd BufRead,BufNewFile *.md set filetype=markdown
-autocmd FileType markdown setlocal spell    " Spell-check Markdown files
-autocmd FileType gitcommit setlocal spell   " Spell-check Git messages
 
 " Show hidden characters
 set nolist
-set listchars=nbsp:¬,extends:»,precedes:«,trail:•
+set listchars=nbsp:¬,extends:»,precedes:«,trail:•,space:␣
 
 call plug#begin('~/.local/share/nvim/plugged')
 
@@ -55,11 +54,11 @@ Plug 'itchyny/lightline.vim'
 Plug 'chriskempson/base16-vim'
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
 
+" Utils
 Plug 'airblade/vim-rooter'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-
-" Utils
+Plug 'junegunn/vim-easy-align'
 Plug 'w0rp/ale'
 Plug 'junegunn/goyo.vim'
 Plug 'machakann/vim-highlightedyank'
@@ -69,6 +68,9 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-projectionist'
+Plug 'tpope/vim-fireplace',  { 'for': 'clojure' }
+Plug 'tpope/vim-salve',      { 'for': 'clojure' }
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-vinegar'
 Plug 'qpkorr/vim-bufkill'
@@ -78,7 +80,6 @@ Plug 'janko-m/vim-test'
 Plug 'rust-lang/rust.vim'
 Plug 'plasticboy/vim-markdown'
 Plug 'vim-ruby/vim-ruby',    { 'for': 'ruby' }
-Plug 'tpope/vim-fireplace',  { 'for': 'clojure' }
 Plug 'tpope/vim-rails'
 Plug 'posva/vim-vue'
 Plug 'pangloss/vim-javascript',  { 'for': 'javascript' }
@@ -90,24 +91,22 @@ call plug#end()
 
 " Colors
 set background=dark
-colorscheme onehalfdark
-if exists('+termguicolors')
-  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-  set termguicolors
+
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
 endif
 
-" if filereadable(expand("~/.vimrc_background"))
-"   let base16colorspace=256
-"   source ~/.vimrc_background
-" endif
-" set termguicolors
+set termguicolors
 
 highlight VertSplit ctermbg=NONE guibg=NONE
 highlight Comment gui=italic
 highlight ExtraWhitespace ctermbg=grey guibg=grey
 " Show trailing whitespace and spaces before a tab"
 match ExtraWhitespace /\s\+$\| \+\ze\t/
+
+" gitgutter
+let g:gitgutter_highlight_linenrs = 1
 
 " Lightline config
 let g:lightline = {
@@ -141,6 +140,7 @@ let g:rustfmt_autosave = 1
 " Ruby conf
 let g:ruby_indent_block_style = 'do'
 let g:ruby_indent_assignment_style = 'variable'
+
 
 " goyo config
 let g:goyo_width = 120
@@ -291,6 +291,9 @@ nnoremap <leader>a :only<cr>
 nnoremap <leader>/ :Commentary<cr>
 vnoremap <leader>/ :Commentary<cr>
 
+" EasyAlign
+vnoremap ga :EasyAlign<cr>
+
 " Strip trailing spaces on save
 function! StripTrailingWhitespaces()
   let l:save = winsaveview()
@@ -298,7 +301,16 @@ function! StripTrailingWhitespaces()
   call winrestview(l:save)
 endfunction
 
-autocmd BufWritePre * :call StripTrailingWhitespaces()
-autocmd Filetype help nnoremap <buffer> q :q<cr>
-autocmd FocusGained * silent! checktime
-autocmd BufWritePre <buffer> :%s/\($\n\s*\)\+\%$//e
+" Custom Autocmds
+augroup vimrc
+  autocmd!
+  " run ruby code using leader-t only when inside a .rb file
+  au BufRead, *.rb nmap <leader>t :!ruby %<cr>
+  au BufRead,BufNewFile *.md set filetype=markdown
+  au FileType markdown setlocal spell    " Spell-check Markdown files
+  au FileType gitcommit setlocal spell   " Spell-check Git messages
+  au BufWritePre * :call StripTrailingWhitespaces()
+  au Filetype help nnoremap <buffer> q :q<cr>
+  au FocusGained * silent! checktime
+  au BufWritePre <buffer> :%s/\($\n\s*\)\+\%$//e
+augroup END
