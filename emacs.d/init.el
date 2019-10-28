@@ -41,6 +41,7 @@
   (add-to-list 'default-frame-alist '(ns-appearance . dark))
   (require 'ls-lisp)
   (setq mac-option-key-is-meta nil ;; rebind Meta key to cmd
+        mac-option-modifier 'super
         frame-title-format nil
         ns-use-proxy-icon nil
         ns-use-thin-smoothing t
@@ -71,17 +72,17 @@
 
 ;; Better defaults
 
-(setq
- column-number-mode t
- display-line-numbers-grow-only t
- initial-scratch-message ""
- load-prefer-newer t
- ring-bell-function 'ignore
- select-enable-clipboard t
- mouse-select-region-move-to-beginning t
- mouse-drag-and-drop-region t
- list-matching-lines-jump-to-current-line t
- inhibit-startup-screen t)
+(setq column-number-mode t
+      display-line-numbers-grow-only t
+      initial-scratch-message ""
+      load-prefer-newer t
+      ring-bell-function 'ignore
+      select-enable-clipboard t
+      mouse-select-region-move-to-beginning t
+      mouse-drag-and-drop-region t
+      list-matching-lines-jump-to-current-line t
+      whitespace-line-column 80
+      inhibit-startup-screen t)
 
 (setq-default cursor-type 'bar
               truncate-lines t
@@ -120,7 +121,7 @@
 (tool-bar-mode -1)
 (tooltip-mode -1)
 (scroll-bar-mode -1)
-(set-frame-font "Meslo LG M DZ for Powerline 15" t t)
+(set-frame-font "Menlo-15" t t)
 (show-paren-mode)
 (global-hl-line-mode t)
 
@@ -143,9 +144,27 @@
 
 ;; packages
 
+(use-package ace-window
+  :ensure t
+  :defer 1
+  :bind (("M-o" . 'ace-window)))
+
+(use-package git-link
+  :ensure t
+  :defer 1)
+
+(use-package restclient
+  :ensure t
+  :defer t)
+
+(use-package company-restclient
+  :ensure t
+  :defer t
+  :config
+  (add-to-list 'company-backends 'company-restclient))
+
 (use-package htmlize :ensure t)
 (use-package all-the-icons :ensure t)
-(use-package undo-tree :ensure t)
 
 (use-package minions
   :ensure t
@@ -160,6 +179,13 @@
   :config
   (setq rust-format-on-save t
         company-tooltip-align-annotations t))
+
+(use-package go-mode
+  :ensure t
+  :mode "\\.go\\'"
+  :hook (before-save . gofmt-before-save)
+  :config
+  (setq gofmt-command "goimports"))
 
 (use-package racer
   :ensure t
@@ -301,8 +327,6 @@
   (doom-themes-org-config)
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t
-        doom-one-brighter-modeline t
-        doom-one-brighter-comments t
         doom-nord-comment-bg t
         doom-nord-brighter-modeline t
         doom-neotree-enable-folder-icons t
@@ -311,7 +335,14 @@
         doom-neotree-project-size 1
         doom-neotree-folder-size 1
         doom-neotree-chevron-size 0.6)
-  (load-theme 'doom-nord t))
+  ;; (load-theme 'doom-nord t)
+  )
+
+(use-package base16-theme
+  :ensure t
+  :config
+  (load-theme 'base16-material t)
+  (setq base16-highlight-mode-line "contrast"))
 
 (use-package cider
   :ensure t
@@ -343,10 +374,6 @@
   :ensure t
   :hook ((prog-mode . smartparens-mode)
          (cider-repl-mode . smartparens-mode)))
-
-(use-package which-key
-  :ensure t
-  :config (which-key-mode))
 
 (use-package ivy
   :ensure t
@@ -388,10 +415,10 @@
 
 (use-package projectile
   :ensure t
-  :init (setq projectile-completion-system 'ivy)
-  :bind (("M-p" . projectile-find-file)
-         ("M-t" . projectile-toggle-between-implementation-and-test))
   :config
+  (setq projectile-completion-system 'ivy
+        projectile-project-search-path '("~/Code/"))
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-mode +1))
 
 (use-package company
@@ -403,8 +430,8 @@
 
 (use-package multiple-cursors
   :ensure t
-  :bind (("M-." . mc/mark-next-like-this-word)
-         ("M-," . mc/mark-previous-like-this-word)
+  :bind (("C-." . mc/mark-next-like-this-word)
+         ("C-," . mc/mark-previous-like-this-word)
          ("C-M-<mouse-1>" . mc/add-cursor-on-click))
   :hook (prog-mode . multiple-cursors-mode))
 
@@ -428,10 +455,12 @@
   :config
   (setq elfeed-feeds
         '("https://www.youtube.com/feeds/videos.xml?channel_id=UCMGXFEew8I6gzjg3tWen4Gw"
+          "https://www.youtube.com/feeds/videos.xml?channel_id=UCKTehwyGCKF-b2wo0RKwrcg"
           "https://nullprogram.com/feed/"
           "https://www.masteringemacs.org/feed/"
           "http://planet.emacsen.org/atom.xml"
           "https://www.reddit.com/r/emacs/.rss"
+          "https://irreal.org/blog/?feed=rss2"
           "https://emacsnotes.wordpress.com/feed/")))
 
 
@@ -520,8 +549,8 @@ Position the cursor at it's beginning, according to the current mode."
   (forward-line -1)
   (indent-according-to-mode))
 
-(global-set-key (kbd "C-o") 'smart-open-line-below)
-(global-set-key (kbd "M-o") 'smart-open-line-above)
+(global-set-key (kbd "<S-return>") 'smart-open-line-below)
+(global-set-key (kbd "C-o") 'smart-open-line-above)
 
 (defun duplicate-current-line-or-region (arg)
   "Duplicates the current line or region ARG times.
