@@ -39,27 +39,27 @@ set shiftwidth=2
 set foldmethod=syntax " Fold config
 set nofoldenable
 set clipboard^=unnamed " Share clipboard with system
+set updatetime=100
 
 set spelllang=en_us                         " set en_us as the default spell checking language
 set spellfile=$HOME/.vim-spell-en.utf-8.add " location to save the 'good' words
 
 " Show hidden characters
 set nolist
-set listchars=nbsp:¬,extends:»,precedes:«,trail:•,space:␣
+set listchars=nbsp:¬,extends:»,precedes:«,trail:•,space:.
 
 call plug#begin('~/.local/share/nvim/plugged')
 
 " Color settings
 Plug 'itchyny/lightline.vim'
 Plug 'chriskempson/base16-vim'
-Plug 'sonph/onehalf', {'rtp': 'vim/'}
 
 " Utils
 Plug 'airblade/vim-rooter'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/vim-easy-align'
-Plug 'w0rp/ale'
+Plug 'dense-analysis/ale'
 Plug 'junegunn/goyo.vim'
 Plug 'machakann/vim-highlightedyank'
 Plug 'airblade/vim-gitgutter'
@@ -73,7 +73,6 @@ Plug 'tpope/vim-fireplace',  { 'for': 'clojure' }
 Plug 'tpope/vim-salve',      { 'for': 'clojure' }
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-vinegar'
-Plug 'qpkorr/vim-bufkill'
 Plug 'janko-m/vim-test'
 
 " Languages support
@@ -107,10 +106,11 @@ match ExtraWhitespace /\s\+$\| \+\ze\t/
 
 " gitgutter
 let g:gitgutter_highlight_linenrs = 1
+let g:gitgutter_map_keys          = 0
 
 " Lightline config
 let g:lightline = {
-      \ 'colorscheme': 'onehalfdark',
+      \ 'colorscheme': 'jellybeans',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
       \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
@@ -140,7 +140,6 @@ let g:rustfmt_autosave = 1
 " Ruby conf
 let g:ruby_indent_block_style = 'do'
 let g:ruby_indent_assignment_style = 'variable'
-
 
 " goyo config
 let g:goyo_width = 120
