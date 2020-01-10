@@ -69,11 +69,12 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-projectionist'
-Plug 'tpope/vim-fireplace',  { 'for': 'clojure' }
-Plug 'tpope/vim-salve',      { 'for': 'clojure' }
+Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
+Plug 'tpope/vim-salve',     { 'for': 'clojure' }
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-vinegar'
 Plug 'janko-m/vim-test'
+Plug 'christoomey/vim-tmux-navigator'
 
 " Languages support
 Plug 'rust-lang/rust.vim'
@@ -90,17 +91,19 @@ call plug#end()
 
 " Colors
 set background=dark
-
+set termguicolors
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
   source ~/.vimrc_background
 endif
 
-set termguicolors
-
-highlight VertSplit ctermbg=NONE guibg=NONE
-highlight Comment gui=italic
-highlight ExtraWhitespace ctermbg=grey guibg=grey
+hi String          gui=italic   cterm=italic
+hi Function        gui=italic   cterm=italic
+hi Identifier      gui=italic   cterm=italic
+hi Operator        gui=italic   cterm=italic
+hi VertSplit       ctermbg=NONE guibg=NONE
+hi Comment         gui=italic   cterm=italic
+hi ExtraWhitespace ctermbg=grey guibg=grey
 " Show trailing whitespace and spaces before a tab"
 match ExtraWhitespace /\s\+$\| \+\ze\t/
 
@@ -130,6 +133,7 @@ let g:ale_linters = {
       \ 'cpp': ['clang'],
       \ 'ruby': ['ruby'],
       \ 'javascript': ['eslint'],
+      \ 'clojure': ['clj-kondo', 'joker']
       \}
 
 " Rust
@@ -312,4 +316,6 @@ augroup vimrc
   au Filetype help nnoremap <buffer> q :q<cr>
   au FocusGained * silent! checktime
   au BufWritePre <buffer> :%s/\($\n\s*\)\+\%$//e
+  " automatically rebalance windows on vim resize
+  au VimResized * :wincmd =
 augroup END
