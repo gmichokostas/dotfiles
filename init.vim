@@ -51,41 +51,39 @@ set listchars=nbsp:¬,extends:»,precedes:«,trail:•,space:.
 call plug#begin('~/.local/share/nvim/plugged')
 
 " Color settings
-Plug 'itchyny/lightline.vim'
 Plug 'chriskempson/base16-vim'
+Plug 'itchyny/lightline.vim'
 
 " Utils
+Plug 'airblade/vim-gitgutter'
 Plug 'airblade/vim-rooter'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'dense-analysis/ale'
+Plug 'janko-m/vim-test'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'junegunn/vim-easy-align'
-Plug 'dense-analysis/ale'
 Plug 'junegunn/goyo.vim'
+Plug 'junegunn/vim-easy-align'
 Plug 'machakann/vim-highlightedyank'
-Plug 'airblade/vim-gitgutter'
-Plug 'tpope/vim-fugitive'
+Plug 'mattn/emmet-vim'
+Plug 'posva/vim-vue'
 Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-projectionist'
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
 Plug 'tpope/vim-salve',     { 'for': 'clojure' }
-Plug 'tpope/vim-rhubarb'
+Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
-Plug 'janko-m/vim-test'
-Plug 'christoomey/vim-tmux-navigator'
 
 " Languages support
-Plug 'rust-lang/rust.vim'
-Plug 'plasticboy/vim-markdown'
-Plug 'vim-ruby/vim-ruby',    { 'for': 'ruby' }
-Plug 'tpope/vim-rails'
-Plug 'posva/vim-vue'
-Plug 'pangloss/vim-javascript',  { 'for': 'javascript' }
-Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
-Plug 'fatih/vim-go',             { 'for': 'go', 'do': ':GoUpdateBinaries' }
 Plug 'othree/html5.vim'
+Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+Plug 'plasticboy/vim-markdown'
+Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
 
 call plug#end()
 
@@ -135,11 +133,6 @@ let g:ale_linters = {
       \ 'javascript': ['eslint'],
       \ 'clojure': ['clj-kondo', 'joker']
       \}
-
-" Rust
-let g:rustfmt_command = "rustfmt +nightly"
-let g:racer_experimental_completer = 1
-let g:rustfmt_autosave = 1
 
 " Ruby conf
 let g:ruby_indent_block_style = 'do'
@@ -308,14 +301,13 @@ endfunction
 augroup vimrc
   autocmd!
   " run ruby code using leader-t only when inside a .rb file
-  au BufRead, *.rb nmap <leader>t :!ruby %<cr>
-  au BufRead,BufNewFile *.md set filetype=markdown
-  au FileType markdown setlocal spell    " Spell-check Markdown files
-  au FileType gitcommit setlocal spell   " Spell-check Git messages
-  au BufWritePre * :call StripTrailingWhitespaces()
-  au Filetype help nnoremap <buffer> q :q<cr>
-  au FocusGained * silent! checktime
-  au BufWritePre <buffer> :%s/\($\n\s*\)\+\%$//e
-  " automatically rebalance windows on vim resize
-  au VimResized * :wincmd =
+  au FileType,          ruby      nnoremap <leader>g :!ruby %<cr>
+  au BufRead,BufNewFile *.md      set      filetype=markdown
+  au FileType           markdown  setlocal spell " Spell-check Markdown files
+  au FileType           gitcommit setlocal spell " Spell-check Git messages
+  au BufWritePre        *         :call    StripTrailingWhitespaces()
+  au Filetype           help      nnoremap <buffer>  q      :q<cr>
+  au FocusGained        *         silent!  checktime
+  au BufWritePre        <buffer>  :%s/\($\n\s*\)\+\%$//e
+  au VimResized         *         :wincmd  = " automatically rebalance windows on vim resize
 augroup END
