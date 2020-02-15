@@ -4,35 +4,43 @@
 
 (setq package-enable-at-startup nil
       file-name-handler-alist nil
-      gc-cons-threshold 402653184
-      gc-cons-percentage 0.8
+      gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.6
       auto-window-vscroll nil)
 
 (add-hook 'after-init-hook
           `(lambda ()
              (setq file-name-handler-alist file-name-handler-alist-old
-                   gc-cons-threshold 800000
+                   gc-cons-threshold 16777216
                    gc-cons-percentage 0.1)
              (garbage-collect)) t)
+
+(defun ym/defer-garbage-collection-h ()
+  (setq gc-cons-threshold most-positive-fixnum))
+
+(defun ym/restore-garbage-collection-h ()
+  "Defer it so that commands launched immediately after will enjoy the benefits."
+  (run-at-time
+   1 nil (lambda () (setq gc-cons-threshold 16777216))))
+
+(add-hook 'minibuffer-setup-hook #'ym/defer-garbage-collection-h)
+(add-hook 'minibuffer-exit-hook #'ym/restore-garbage-collection-h)
 
 (setq load-prefer-newer t)
 
 ;; Package configs
-(require 'package)
+(eval-when-compile
+  (require 'package)
+  (package-initialize)
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (require 'use-package))
+
 (setq package-enable-at-startup nil)
-(setq package-archives '(("org"   . "https://orgmode.org/elpa/")
-                         ("gnu"   . "https://elpa.gnu.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/"))
-      tls-checktrust t
-      tls-program '("gnutls-cli --x509cafile %t -p %p %h")
-      gnutls-verify-error t)
 
-(package-initialize)
-
-;; Bootstrap `use-package`
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
 
 ;; MacOS related
 (when (memq window-system '(mac ns darwin))
@@ -42,21 +50,21 @@
   (require 'ls-lisp)
   (setq mac-option-key-is-meta nil ;; rebind Meta key to cmd
         mac-option-modifier 'super
-        frame-title-format nil
-        ns-use-proxy-icon nil
-        ns-use-thin-smoothing t
         mac-command-key-is-meta t
         mac-command-modifier 'meta
         mac-option-modifier 'none
+        frame-title-format nil
+        ns-use-proxy-icon nil
+        ns-use-thin-smoothing t
         dired-use-ls-dired nil
         ls-lisp-use-insert-directory-program nil))
 
 ;; general editor settings
-
 (setq org-hide-leading-stars t
       org-ellipsis "⤵")
 (setq apropos-sort-by-scores t
       require-final-newline t)
+
 (global-prettify-symbols-mode 1)
 (global-auto-revert-mode 1) ;; reload file when it has changed in the disk
 (windmove-default-keybindings)
@@ -76,6 +84,7 @@
       display-line-numbers-grow-only t
       initial-scratch-message ""
       load-prefer-newer t
+      frame-inhibit-implied-resize t
       ring-bell-function 'ignore
       select-enable-clipboard t
       mouse-select-region-move-to-beginning t
@@ -83,6 +92,8 @@
       list-matching-lines-jump-to-current-line t
       whitespace-line-column 80
       inhibit-startup-screen t)
+
+(recentf-mode nil)
 
 (setq-default cursor-type 'bar
               truncate-lines t
@@ -102,6 +113,7 @@
                             (setq show-trailing-whitespace 1)))
 
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 (global-unset-key "\C-z")
@@ -117,13 +129,13 @@
 (setq ruby-insert-encoding-magic-comment nil)
 
 ;; UI
-
 (tool-bar-mode -1)
 (tooltip-mode -1)
 (scroll-bar-mode -1)
-(set-frame-font "Menlo-15" t t)
 (show-paren-mode)
 (global-hl-line-mode t)
+
+(add-to-list 'default-frame-alist '(font . "Menlo-15"))
 
 ;; modeline config
 (setq-default mode-line-format
@@ -138,16 +150,37 @@
                 mode-line-position
                 minions-mode-line-modes
                 mode-line-misc-info " "
-                flymake--mode-line-format
+                flycheck-mode-line
                 vc-mode
                 mode-line-end-spaces))
 
-;; packages
+(add-hook
+ 'after-init-hook
+ (lambda nil
+   (progn
+     (set-face-attribute 'font-lock-variable-name-face
+                         nil
+                         :weight 'semi-bold'
+                         :slant 'italic)
 
+     (set-face-attribute 'font-lock-comment-face
+                         nil
+                         :slant 'italic)
+
+     (set-face-attribute 'font-lock-function-name-face
+                         nil
+                         :slant 'italic)
+
+     (set-face-attribute 'font-lock-string-face
+                         nil
+                         :slant 'italic))))
+
+;; packages
+;;
 (use-package ace-window
   :ensure t
   :defer 1
-  :bind (("M-o" . 'ace-window)))
+  :bind (("M-p" . 'ace-window)))
 
 (use-package git-link
   :ensure t
@@ -155,7 +188,7 @@
 
 (use-package restclient
   :ensure t
-  :defer t)
+  :mode (("\\.http\\'" . restclient-mode)))
 
 (use-package company-restclient
   :ensure t
@@ -163,22 +196,15 @@
   :config
   (add-to-list 'company-backends 'company-restclient))
 
-(use-package htmlize :ensure t)
-(use-package all-the-icons :ensure t)
+(use-package htmlize
+  :ensure t
+  :defer 2)
 
 (use-package minions
   :ensure t
   :config
   (setq minions-mode-line-lighter "[+]")
   (minions-mode))
-
-(use-package rust-mode
-  :ensure t
-  :hook ((rust-mode . company-mode)
-         (rust-mode . racer-mode))
-  :config
-  (setq rust-format-on-save t
-        company-tooltip-align-annotations t))
 
 (use-package go-mode
   :ensure t
@@ -187,36 +213,29 @@
   :config
   (setq gofmt-command "goimports"))
 
-(use-package racer
-  :ensure t
-  :defer t
-  :hook ((racer-mode . eldoc-mode))
-  :config
-  (require 'f)
-  (setq racer-cmd (f-expand "~/.cargo/bin/racer")
-        racer-rust-src-path
-        (f-expand "~/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src")))
-
 (use-package exec-path-from-shell
   :ensure t
   :config
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 
+(use-package flycheck-clj-kondo
+  :ensure t
+  :defer t)
+
+(use-package flycheck
+  :ensure t
+  :defer 2
+  :config
+  (global-flycheck-mode)
+  (setq-default flycheck-disabled-checkers
+                (append flycheck-disabled-checkers
+                        '(ruby-rubocop javascript-jshint)))
+  (flycheck-add-mode 'javascript-eslint 'web-mode))
+
 (use-package dockerfile-mode
   :ensure t
   :mode (("Dockerfile\\'" . dockerfile-mode)))
-
-(use-package lua-mode
-  :ensure t
-  :mode (("\\.lua\\'" . lua-mode))
-  :hook ((lua-mode . company-mode))
-  :config
-  (setq lua-indent-level 2))
-
-(use-package company-lua
-  :ensure t
-  :after company)
 
 (use-package eyebrowse
   :ensure t
@@ -235,21 +254,28 @@
 
 (use-package git-gutter
   :ensure t
+  :defer 1
   :hook ((prog-mode . git-gutter-mode)
          (org-mode . git-gutter-mode)
          (yaml-mode . git-gutter-mode)))
 
 (use-package org
   :ensure org-plus-contrib
-  :mode (("\\.org\\'" . org-mode))
-  :config
-  (setq org-agenda-include-diary t
-        org-default-notes-file "~/org/notes"))
+  :mode (("\\.org\\'" . org-mode)))
 
 (use-package org-bullets
   :ensure t
   :defer t
   :hook ((org-mode . (lambda () (org-bullets-mode 1)))))
+
+(use-package org-journal
+  :ensure t
+  :config
+  (setq org-journal-file-type 'yearly
+        org-journal-dir "~/notes/"
+        org-journal-time-format ""
+        org-journal-file-format "%Y.org"
+        org-journal-date-format "%A, %d %B %Y"))
 
 (use-package dumb-jump
   :ensure t
@@ -265,27 +291,6 @@
                            (ibuffer-vc-set-filter-groups-by-vc-root)
                            (unless (eq ibuffer-sorting-mode 'alphabetic)
                              (ibuffer-do-sort-by-alphabetic))))))
-
-(use-package coffee-mode
-  :ensure t
-  :mode "\\.coffee\\'"
-  :config
-  (setq coffee-tab-width 2)
-  (setq whitespace-action '(auto-cleanup))
-  (setq whitespace-style '(trailing space-before-tab indentation empty space-after-tab)))
-
-(use-package vue-mode
-  :ensure t
-  :mode "\\.vue\\'"
-  :config
-  (setq mmm-submode-decoration-level 0))
-
-(use-package slime
-  :ensure t
-  :defer t
-  :config
-  (setq inferior-lisp-program "/usr/local/bin/sbcl"
-        slime-contribs '(slime-fancy)))
 
 (use-package geiser
   :ensure t
@@ -312,7 +317,9 @@
   :hook ((js2-mode . js2-imenu-extras-mode))
   :mode (("\\.js\\'" . js2-mode))
   :config
-  (setq js2-basic-offset 2))
+  (setq js2-basic-offset 2
+        js2-include-jslint-globals nil
+        js2-include-jslint-declaration-externs nil))
 
 (use-package json-mode
   :ensure t
@@ -320,29 +327,11 @@
                         (setq js-indent-level 2))))
   :mode (("\\.json\\'" . json-mode)))
 
-(use-package doom-themes
-  :ensure t
-  :config
-  (doom-themes-neotree-config)
-  (doom-themes-org-config)
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t
-        doom-nord-comment-bg t
-        doom-nord-brighter-modeline t
-        doom-neotree-enable-folder-icons t
-        doom-neotree-enable-file-icons t
-        doom-neotree-enable-chevron-icons t
-        doom-neotree-project-size 1
-        doom-neotree-folder-size 1
-        doom-neotree-chevron-size 0.6)
-  ;; (load-theme 'doom-nord t)
-  )
-
 (use-package base16-theme
   :ensure t
   :config
-  (load-theme 'base16-material t)
-  (setq base16-highlight-mode-line "contrast"))
+  (setq base16-highlight-mode-line 'contrast)
+  (load-theme 'base16-tomorrow-night t))
 
 (use-package cider
   :ensure t
@@ -353,17 +342,41 @@
   :ensure t
   :mode (("\\.clj\\'" . clojure-mode)
          ("\\.edn\\'" . clojure-mode)
-         ("\\.cljs\\'" . clojurescript-mode)))
+         ("\\.cljs\\'" . clojurescript-mode))
+  :config
+  (require 'flycheck-clj-kondo))
 
-(use-package flymake-ruby
+(use-package clojure-mode-extra-font-locking
   :ensure t
-  :hook (ruby-mode . flymake-ruby-load))
+  :mode (("\\.clj\\'" . clojure-mode)
+         ("\\.cljs\\'" . clojure-mode)
+         ("\\.edn\\'" . clojure-mode)))
+
+(use-package lispy
+  :ensure t
+  :hook ((clojure-mode . lispy-mode)
+         (emacs-lisp-mode . lispy-mode)))
 
 (use-package ruby-electric
   :ensure t
   :mode ("\\.rb\\'" . ruby-mode)
   :hook ((ruby-mode . ruby-electric-mode)
          (ruby-mode . hs-minor-mode)))
+
+(use-package rspec-mode
+  :ensure t
+  :init
+  (add-hook 'after-init-hook 'inf-ruby-switch-setup))
+
+(use-package inf-ruby
+  :ensure t
+  :hook ((ruby-mode . inf-ruby-minor-mode)
+         (compilation-filter-hook inf-ruby-auto-enter)))
+
+(use-package projectile-rails
+  :ensure t
+  :config
+  (projectile-rails-global-mode))
 
 (use-package rainbow-delimiters
   :ensure t
@@ -386,24 +399,32 @@
 
 (use-package counsel
   :ensure t
-  :bind(("M-x" . counsel-M-x)
-        ("C-c l" . counsel-semantic-or-imenu)
+  :bind(("M-x"     . counsel-M-x)
+        ("C-c l"   . counsel-semantic-or-imenu)
         ("C-x C-f" . counsel-find-file)
-        ("<f1> f" . counsel-describe-function)
-        ("<f1> v" . counsel-describe-variable)
-        ("<f1> l" . counsel-find-library)
-        ("<f2> i" . counsel-info-lookup-symbol)
-        ("<f2> u" . counsel-unicode-char)
-        ("C-c g" . counsel-git)
-        ("C-c j" . counsel-git-grep)
-        ("C-c a" . counsel-ag)
-        ("C-x l" . counsel-locate))
+        ("<f1> f"  . counsel-describe-function)
+        ("<f1> v"  . counsel-describe-variable)
+        ("<f1> l"  . counsel-find-library)
+        ("<f2> i"  . counsel-info-lookup-symbol)
+        ("<f2> u"  . counsel-unicode-char)
+        ("C-c g"   . counsel-git)
+        ("C-c j"   . counsel-git-grep)
+        ("C-c a"   . counsel-ag)
+        ("C-x l"   . counsel-locate)
+        ("C-c k"   . counsel-rg)
+        ("C-c n"   . counsel-fzf))
   :config
   (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
 
+(use-package avy
+  :ensure t
+  :bind (("C-;" . avy-goto-char-2)
+         ("M-g f" . avy-goto-line)
+         ("M-g w" . avy-goto-word-1)))
+
 (use-package swiper
   :ensure t
-  :bind (("\C-s" . swiper)))
+  :bind (("C-s" . swiper)))
 
 (use-package markdown-mode
   :ensure t
@@ -417,6 +438,7 @@
   :ensure t
   :config
   (setq projectile-completion-system 'ivy
+        projectile-create-missing-test-files t
         projectile-project-search-path '("~/Code/"))
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-mode +1))
@@ -445,7 +467,8 @@
   (setq web-mode-enable-current-element-highlight t)
   (setq web-mode-code-indent-offset 2)
   :mode (("\\.html?\\'" . web-mode)
-         ("\\.erb\\'" . web-mode)))
+         ("\\.erb\\'" . web-mode)
+         ("\\.vue\\'" . web-mode)))
 
 (use-package elfeed
   :ensure t
@@ -462,8 +485,6 @@
           "https://www.reddit.com/r/emacs/.rss"
           "https://irreal.org/blog/?feed=rss2"
           "https://emacsnotes.wordpress.com/feed/")))
-
-
 
 (when (executable-find "aspell")
   (setq-default ispell-program-name "aspell")
