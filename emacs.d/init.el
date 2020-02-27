@@ -1,4 +1,4 @@
-;; -*- lexical-binding: t; -*-
+;;; -*- lexical-binding: t; -*-
 
 (defvar file-name-handler-alist-old file-name-handler-alist)
 
@@ -91,6 +91,7 @@
       mouse-drag-and-drop-region t
       list-matching-lines-jump-to-current-line t
       whitespace-line-column 80
+      scroll-conservatively 100
       inhibit-startup-screen t)
 
 (recentf-mode nil)
@@ -105,7 +106,7 @@
                    (abbreviate-file-name (buffer-file-name))
                  "%b"))))
 
-(delete-selection-mode 1)
+(delete-selection-mode +1)
 
 ;; highlight redundant whitespace
 (add-hook 'prog-mode-hook (lambda ()
@@ -270,6 +271,7 @@
 
 (use-package org-journal
   :ensure t
+  :defer 3
   :config
   (setq org-journal-file-type 'yearly
         org-journal-dir "~/notes/"
