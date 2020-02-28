@@ -40,6 +40,9 @@
 ;; macOS config
 (when (and (eq system-type 'darwin)
 	   (display-graphic-p))
+  ;; titlebar for macOS
+  (add-to-list 'default-frame-alist '(ns-appearance . dark))
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   (require 'ls-lisp)
   ;; swap meta and hyper positions for macOS
   (setq mac-option-modifier   'super
@@ -50,6 +53,10 @@
 ;; set default font
 (add-to-list 'default-frame-alist '(font . "Menlo-15"))
 
+;; use italics in comments
+(custom-set-faces
+  '(font-lock-comment-face ((t (:slant italic)))))
+
 ;; disable auto-save and auto-backup
 (setq auto-save-default nil
       make-backup-files nil
@@ -59,6 +66,9 @@
 (defalias 'list-buffers 'ibuffer)
 (defalias 'yes-or-no-p  'y-or-n-p)
 (defalias 'eb           'eval-buffer)
+
+;; trim trailing whitespace on save
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; line numbers config
 ;;; show line numbers in prog mode
@@ -109,3 +119,12 @@
 
 ;; disable C-z which minimizes Emacs
 (global-unset-key "\C-z")
+
+;;; set the colorscheme
+(use-package doom-themes
+  :ensure t
+  :config
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t
+        nlinum-highlight-current-line t)
+  (load-theme 'doom-tomorrow-night t))
