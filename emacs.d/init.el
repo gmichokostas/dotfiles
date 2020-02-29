@@ -120,6 +120,27 @@
 ;; disable C-z which minimizes Emacs
 (global-unset-key "\C-z")
 
+(defun ym/open-line-below ()
+  "Insert an empty line after the current line.
+Position the cursor at its beginning, according to the current mode."
+  (interactive)
+  (move-end-of-line nil)
+  (newline-and-indent))
+
+(global-set-key (kbd "<S-return>") 'ym/open-line-below)
+
+(defun ym/duplicate-current-line ()
+  "Duplicate the current line below"
+  (interactive)
+  (move-beginning-of-line 1)
+  (kill-line)
+  (yank)
+  (open-line 1)
+  (next-line 1)
+  (yank))
+
+(global-set-key (kbd "C-c d") 'ym/duplicate-current-line)
+
 ;;; set the colorscheme
 (use-package doom-themes
   :ensure t
