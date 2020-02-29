@@ -29,7 +29,8 @@
 ;; setup use-package
 (eval-and-compile
   (require 'package)
-  (setq package-archives '(("melpa" . "https://melpa.org/packages/")))
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			   ("gnu" . "https://elpa.gnu.org/packages/")))
   (package-initialize)
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
@@ -74,9 +75,9 @@
 ;;; show line numbers in prog mode
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
-(setq column-number-mode             t     ;; show lin-number/column combo
-      display-line-numbers-grow-only t     ;; dont resize line number column when we go to smaller line number
-      display-line-numbers-type 'relative) ;; line number type is relative to mark
+(setq column-number-mode             t     ; show lin-number/column combo
+      display-line-numbers-grow-only t     ; dont resize line number column when we go to smaller line number
+      display-line-numbers-type 'relative) ; line number type is relative to mark
 
 ;; always add a new line at the EOF
 (setq require-final-newline t)
@@ -149,3 +150,15 @@ Position the cursor at its beginning, according to the current mode."
         doom-themes-enable-italic t
         nlinum-highlight-current-line t)
   (load-theme 'doom-tomorrow-night t))
+
+;;; Clojure support
+(use-package clojure-mode
+  :ensure t
+  :mode (("\\.clj\\'"  . clojure-mode)
+         ("\\.edn\\'"  . clojure-mode)
+         ("\\.cljs\\'" . clojurescript-mode)))
+
+(use-package cider
+  :ensure t
+  :defer t
+  :config (setq cider-repl-use-pretty-printing t))
