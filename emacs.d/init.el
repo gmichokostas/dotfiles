@@ -26,6 +26,9 @@
 (add-hook 'minibuffer-setup-hook #'ym/defer-garbage-collection-h)
 (add-hook 'minibuffer-exit-hook  #'ym/restore-garbage-collection-h)
 
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
+
 ;; setup use-package
 (eval-and-compile
   (require 'package)
@@ -56,7 +59,7 @@
 
 ;; use italics in comments
 (custom-set-faces
-  '(font-lock-comment-face ((t (:slant italic)))))
+ '(font-lock-comment-face ((t (:slant italic)))))
 
 ;; disable auto-save and auto-backup
 (setq auto-save-default nil
@@ -162,3 +165,15 @@ Position the cursor at its beginning, according to the current mode."
   :ensure t
   :defer t
   :config (setq cider-repl-use-pretty-printing t))
+
+;;; Git on steroids
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)))
+
+(use-package exec-path-from-shell
+  :ensure t
+  :defer t
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
