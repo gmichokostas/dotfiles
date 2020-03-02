@@ -52,10 +52,11 @@
   (setq mac-option-modifier   'super
         mac-command-modifier  'meta
 	ns-function-modifier  'hyper
+	ns-use-thin-smoothing t
 	dired-use-ls-dired    nil))
 
 ;; set default font
-(add-to-list 'default-frame-alist '(font . "Menlo-15"))
+(add-to-list 'default-frame-alist '(font . "Iosevka-16"))
 
 ;; use italics in comments
 (custom-set-faces
@@ -73,6 +74,10 @@
 
 ;; trim trailing whitespace on save
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+;; enable electric-pair-mode in programming mode to
+;; get matching delimiters
+(add-hook 'prog-mode-hook 'electric-pair-mode)
 
 ;; line numbers config
 ;;; show line numbers in prog mode
@@ -173,7 +178,16 @@ Position the cursor at its beginning, according to the current mode."
 
 (use-package exec-path-from-shell
   :ensure t
-  :defer t
+  :defer 3
   :config
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
+
+;;; window management
+(use-package eyebrowse
+  :ensure t
+  :config
+  (setq eyebrowse-mode-line-separator " "
+        eyebrowse-new-workspace t)
+  (eyebrowse-setup-opinionated-keys)
+  (eyebrowse-mode t))
