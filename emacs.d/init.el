@@ -228,3 +228,40 @@ Position the cursor at its beginning, according to the current mode."
         org-journal-time-format ""
         org-journal-file-format "%Y.org"
         org-journal-date-format "%A, %d %B %Y"))
+
+;;; show funcy symbols when editing Git tracked files
+(use-package git-gutter
+  :ensure t
+  :hook ((prog-mode . git-gutter-mode)
+         (org-mode  . git-gutter-mode)
+         (yaml-mode . git-gutter-mode)))
+
+;;; Scheme support tool
+(use-package geiser
+  :ensure t
+  :defer t
+  :config
+  (setq geiser-active-implementations '(guile)))
+
+;;; Utility when editing html files
+(use-package web-mode
+  :ensure t
+  :hook ((web-mode . (lambda () (setq web-mode-markup-indent-offset 2))))
+  :config
+  (setq web-mode-extra-auto-pairs '(("erb" . (("beg" "end"))))
+	web-mode-enable-css-colorization          t
+	web-mode-enable-current-column-highlight  t
+	web-mode-enable-current-element-highlight t
+	web-mode-code-indent-offset 2)
+  :mode (("\\.html?\\'" . web-mode)
+         ("\\.erb\\'"   . web-mode)
+         ("\\.vue\\'"   . web-mode)))
+
+;;; Markdown support
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'"       . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
