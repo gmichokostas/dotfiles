@@ -56,6 +56,9 @@
 	ns-use-thin-smoothing t
 	dired-use-ls-dired    nil))
 
+;;; use icomplete mode for better buffer completion
+(icomplete-mode)
+
 ;; set default font
 (add-to-list 'default-frame-alist '(font . "Iosevka-16"))
 
