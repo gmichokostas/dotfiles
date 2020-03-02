@@ -33,7 +33,8 @@
 (eval-and-compile
   (require 'package)
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			   ("gnu" . "https://elpa.gnu.org/packages/")))
+			   ("gnu" . "https://elpa.gnu.org/packages/")
+                           ("org" . "https://orgmode.org/elpa/")))
   (package-initialize)
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
@@ -60,7 +61,8 @@
 
 ;; use italics in comments
 (custom-set-faces
- '(font-lock-comment-face ((t (:slant italic)))))
+ '(font-lock-comment-face ((t (:slant italic))))
+ '(font-lock-type-face ((t (:slant italic)))))
 
 ;; disable auto-save and auto-backup
 (setq auto-save-default nil
@@ -116,6 +118,12 @@
 
 ;; highlight the current line
 (global-hl-line-mode t)
+
+;; replace selected text on type
+(delete-selection-mode +1)
+
+;; show trailing whitespaces
+(setq show-trailing-whitespace t)
 
 ;; move point to begging when double clicking
 (setq mouse-select-region-move-to-beginning t)
@@ -191,3 +199,29 @@ Position the cursor at its beginning, according to the current mode."
         eyebrowse-new-workspace t)
   (eyebrowse-setup-opinionated-keys)
   (eyebrowse-mode t))
+
+;;; handy tool for http requests
+(use-package restclient
+  :ensure t
+  :mode (("\\.http\\'" . restclient-mode)))
+
+;;; ORG mode config
+(use-package org
+  :ensure org-plus-contrib
+  :mode (("\\.org\\'" . org-mode))
+  :config
+  (setq org-hide-leading-stars t
+	org-ellipsis "⤵"))
+
+(use-package org-bullets
+  :ensure t
+  :hook ((org-mode . (lambda () (org-bullets-mode 1)))))
+
+(use-package org-journal
+  :ensure t
+  :config
+  (setq org-journal-file-type 'yearly
+        org-journal-dir "~/notes/"
+        org-journal-time-format ""
+        org-journal-file-format "%Y.org"
+        org-journal-date-format "%A, %d %B %Y"))
