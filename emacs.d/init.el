@@ -56,8 +56,11 @@
 	ns-use-thin-smoothing t
 	dired-use-ls-dired    nil))
 
-;;; use icomplete mode for better buffer completion
+;;; use icomplete mode for better mini buffer completion
 (icomplete-mode)
+(setq icomplete-separator "\n")
+(setq icomplete-hide-common-prefix nil)
+(setq icomplete-show-matches-on-no-input t)
 
 ;; set default font
 (add-to-list 'default-frame-alist '(font . "Iosevka-16"))
