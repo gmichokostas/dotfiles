@@ -56,19 +56,13 @@
 	ns-use-thin-smoothing t
 	dired-use-ls-dired    nil))
 
-;;; use icomplete mode for better mini buffer completion
-(icomplete-mode)
-(setq icomplete-separator "\n")
-(setq icomplete-hide-common-prefix nil)
-(setq icomplete-show-matches-on-no-input t)
-
 ;; set default font
 (add-to-list 'default-frame-alist '(font . "Iosevka-16"))
 
 ;; use italics in comments
 (custom-set-faces
  '(font-lock-comment-face ((t (:slant italic))))
- '(font-lock-type-face ((t (:slant italic)))))
+ '(font-lock-type-face    ((t (:slant italic)))))
 
 ;; disable auto-save and auto-backup
 (setq auto-save-default nil
@@ -153,13 +147,13 @@ Position the cursor at its beginning, according to the current mode."
 (global-set-key (kbd "<S-return>") 'ym/open-line-below)
 
 (defun ym/duplicate-current-line ()
-  "Duplicate the current line below"
+  "Duplicate the current line below."
   (interactive)
   (move-beginning-of-line 1)
   (kill-line)
   (yank)
   (open-line 1)
-  (next-line 1)
+  (forward-line 1)
   (yank))
 
 (global-set-key (kbd "C-c d") 'ym/duplicate-current-line)
@@ -168,8 +162,8 @@ Position the cursor at its beginning, according to the current mode."
 (use-package doom-themes
   :ensure t
   :config
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t
+  (setq doom-themes-enable-bold       t
+        doom-themes-enable-italic     t
         nlinum-highlight-current-line t)
   (load-theme 'doom-tomorrow-night t))
 
@@ -188,7 +182,9 @@ Position the cursor at its beginning, according to the current mode."
 ;;; Git on steroids
 (use-package magit
   :ensure t
-  :bind (("C-x g" . magit-status)))
+  :bind (("C-x g" . magit-status))
+  :config
+  (setq magit-completing-read-function 'ivy-completing-read))
 
 (use-package exec-path-from-shell
   :ensure t
@@ -202,7 +198,7 @@ Position the cursor at its beginning, according to the current mode."
   :ensure t
   :config
   (setq eyebrowse-mode-line-separator " "
-        eyebrowse-new-workspace t)
+        eyebrowse-new-workspace       t)
   (eyebrowse-setup-opinionated-keys)
   (eyebrowse-mode t))
 
@@ -225,11 +221,12 @@ Position the cursor at its beginning, according to the current mode."
 
 (use-package org-journal
   :ensure t
+  :custom
+  (org-journal-dir         "~/notes/")
+  (org-journal-file-format "%Y")
   :config
   (setq org-journal-file-type 'yearly
-        org-journal-dir "~/notes/"
         org-journal-time-format ""
-        org-journal-file-format "%Y.org"
         org-journal-date-format "%A, %d %B %Y"))
 
 ;;; show funcy symbols when editing Git tracked files
@@ -268,3 +265,61 @@ Position the cursor at its beginning, according to the current mode."
          ("\\.md\\'"       . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
+
+;;; YAML support
+(use-package yaml-mode
+  :ensure t
+  :mode (("\\.yml\\'"  . yaml-mode)
+         ("\\.yaml\\'" . yaml-mode)))
+
+(use-package ivy
+  :ensure t
+  :defer 1
+  :bind (("C-c C-r" . ivy-resume))
+  :config
+  (setq ivy-use-virtual-buffers t
+        ivy-format-function 'ivy-format-function-arrow
+        enable-recursive-minibuffers t)
+  (ivy-mode 1))
+
+(use-package counsel
+  :ensure t
+  :defer 1
+  :bind(("M-x"     . counsel-M-x)
+        ("C-c l"   . counsel-semantic-or-imenu)
+        ("C-x C-f" . counsel-find-file)
+        ("<f1> f"  . counsel-describe-function)
+        ("<f1> v"  . counsel-describe-variable)
+        ("<f1> l"  . counsel-find-library)
+        ("<f2> i"  . counsel-info-lookup-symbol)
+        ("<f2> u"  . counsel-unicode-char)
+        ("C-c g"   . counsel-git)
+        ("C-c j"   . counsel-git-grep)
+        ("C-c a"   . counsel-ag)
+        ("C-x l"   . counsel-locate)
+        ("C-c k"   . counsel-rg)
+        ("C-c n"   . counsel-fzf))
+  :config
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
+
+(use-package avy
+  :ensure t
+  :bind (("C-;"   . avy-goto-char-2)
+         ("M-g f" . avy-goto-line)
+         ("M-g w" . avy-goto-word-1)))
+
+(use-package swiper
+  :ensure t
+  :defer 1
+  :bind (("C-s" . swiper)))
+
+;;; project utility
+(use-package projectile
+  :ensure t
+  :config
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (setq projectile-create-missing-test-files t
+	projectile-project-search-path '("~/Code")
+	projectile-completion-system 'ivy)
+  (projectile-mode +1))
