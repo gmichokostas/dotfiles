@@ -33,8 +33,8 @@
 (eval-and-compile
   (require 'package)
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			   ("gnu" . "https://elpa.gnu.org/packages/")
-                           ("org" . "https://orgmode.org/elpa/")))
+                           ("gnu"   . "https://elpa.gnu.org/packages/")
+                           ("org"   . "https://orgmode.org/elpa/")))
   (package-initialize)
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
@@ -57,7 +57,7 @@
 	dired-use-ls-dired    nil))
 
 ;; set default font
-(add-to-list 'default-frame-alist '(font . "Iosevka-16"))
+(add-to-list 'default-frame-alist '(font . "menlo-15"))
 
 ;; use italics in comments
 (custom-set-faces
@@ -132,7 +132,7 @@
 (setq  mouse-drag-and-drop-region t)
 
 ;; never use tabs
-(setq indent-tabs-mode nil)
+(setq-default indent-tabs-mode nil)
 
 ;; disable C-z which minimizes Emacs
 (global-unset-key "\C-z")
@@ -158,6 +158,14 @@ Position the cursor at its beginning, according to the current mode."
 
 (global-set-key (kbd "C-c d") 'ym/duplicate-current-line)
 
+(defun ym/upcase-word ()
+  "Upcase the word that is before the point."
+  (interactive)
+  (backward-word)
+  (upcase-word 1))
+
+(global-set-key (kbd "C-c u") 'ym/upcase-word)
+
 ;;; set the colorscheme
 (use-package doom-themes
   :ensure t
@@ -178,6 +186,12 @@ Position the cursor at its beginning, according to the current mode."
   :ensure t
   :defer t
   :config (setq cider-repl-use-pretty-printing t))
+
+(use-package rainbow-delimiters
+  :ensure t
+  :hook ((clojure-mode    . rainbow-delimiters-mode)
+         (cider-repl-mode . rainbow-delimiters-mode)
+         (emacs-lisp-mode . rainbow-delimiters-mode)))
 
 ;;; Git on steroids
 (use-package magit
@@ -277,14 +291,14 @@ Position the cursor at its beginning, according to the current mode."
   :defer 1
   :bind (("C-c C-r" . ivy-resume))
   :config
-  (setq ivy-use-virtual-buffers t
-        ivy-format-function 'ivy-format-function-arrow
+  (setq ivy-use-virtual-buffers      t
+	ivy-count-format             "(%d/%d) "
         enable-recursive-minibuffers t)
   (ivy-mode 1))
 
 (use-package counsel
   :ensure t
-  :defer 1
+  :after ivy
   :bind(("M-x"     . counsel-M-x)
         ("C-c l"   . counsel-semantic-or-imenu)
         ("C-x C-f" . counsel-find-file)
@@ -310,14 +324,15 @@ Position the cursor at its beginning, according to the current mode."
 
 (use-package swiper
   :ensure t
-  :defer 1
+  :after avy
   :bind (("C-s" . swiper)))
 
 ;;; project utility
 (use-package projectile
   :ensure t
+  :defer 1
   :config
-  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "s-p")   'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (setq projectile-create-missing-test-files t
 	projectile-project-search-path '("~/Code")
