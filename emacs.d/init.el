@@ -57,7 +57,7 @@
 	dired-use-ls-dired    nil))
 
 ;; set default font
-(add-to-list 'default-frame-alist '(font . "menlo-15"))
+(add-to-list 'default-frame-alist '(font . "Iosevka Term-16"))
 
 ;; use italics in comments
 (custom-set-faces
@@ -158,11 +158,11 @@ Position the cursor at its beginning, according to the current mode."
 
 (global-set-key (kbd "C-c d") 'ym/duplicate-current-line)
 
-(defun ym/upcase-word ()
-  "Upcase the word that is before the point."
-  (interactive)
-  (backward-word)
-  (upcase-word 1))
+(defun ym/upcase-word (n)
+  "Upcase nth words before the point."
+  (interactive "p")
+  (setq n (- n))
+  (upcase-word n))
 
 (global-set-key (kbd "C-c u") 'ym/upcase-word)
 
