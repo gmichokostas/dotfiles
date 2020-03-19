@@ -62,7 +62,8 @@
 ;; use italics in comments
 (custom-set-faces
  '(font-lock-comment-face ((t (:slant italic))))
- '(font-lock-type-face    ((t (:slant italic)))))
+ '(font-lock-reference-face ((t (:slant italic))))
+ '(font-lock-function-name-face ((t (:slant italic)))))
 
 ;; disable auto-save and auto-backup
 (setq auto-save-default nil
@@ -175,6 +176,13 @@ Position the cursor at its beginning, according to the current mode."
         nlinum-highlight-current-line t)
   (load-theme 'doom-tomorrow-night t))
 
+;;; s-expression util
+(use-package paredit
+  :ensure t
+  :mode (("\\.clj\\'" . paredit-mode)
+         ("\\.el\\'"  . paredit-mode)
+         ("\\.sch\\'" . paredit-mode)))
+
 ;;; Clojure support
 (use-package clojure-mode
   :ensure t
@@ -255,7 +263,7 @@ Position the cursor at its beginning, according to the current mode."
   :ensure t
   :defer t
   :config
-  (setq geiser-active-implementations '(guile)))
+  (setq geiser-active-implementations '(guile mit)))
 
 ;;; Utility when editing html files
 (use-package web-mode
