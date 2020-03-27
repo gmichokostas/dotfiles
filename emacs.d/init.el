@@ -167,6 +167,27 @@ Position the cursor at its beginning, according to the current mode."
 
 (global-set-key (kbd "C-c u") 'ym/upcase-word)
 
+;;; config pseudo-modal editing
+(use-package view
+  :ensure nil
+  :init
+  (setq-default cursor-type 'box)
+  :hook ((view-mode . ym/set-cursor-type))
+  :bind (("C-x C-q" . view-mode)
+	 :map view-mode-map
+         ("a"   . move-beginning-of-line)
+         ("e"   . move-end-of-line)
+         ("p"   . previous-line)
+         ("n"   . next-line)
+         ("f"   . forward-char)
+         ("b"   . backward-char)
+         ("v"   . scroll-up-command)
+         ("SPC" . scroll-down-command))
+  :config
+  (setq view-read-only t)
+  (defun ym/set-cursor-type ()
+    (setq cursor-type (if view-mode 'box 'bar))))
+
 ;;; set the colorscheme
 (use-package doom-themes
   :ensure t
@@ -179,9 +200,10 @@ Position the cursor at its beginning, according to the current mode."
 ;;; s-expression util
 (use-package paredit
   :ensure t
-  :mode (("\\.clj\\'" . paredit-mode)
-         ("\\.el\\'"  . paredit-mode)
-         ("\\.sch\\'" . paredit-mode)))
+  :hook ((clojure-mode           . enable-paredit-mode)
+         (clojurescript-mode     . enable-paredit-mode)
+         (scheme-mode            . enable-paredit-mode)
+         (emacs-lisp-mode        . enable-paredit-mode)))
 
 ;;; Clojure support
 (use-package clojure-mode
@@ -210,7 +232,7 @@ Position the cursor at its beginning, according to the current mode."
 
 (use-package exec-path-from-shell
   :ensure t
-  :defer 3
+  :defer 1
   :config
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
@@ -234,6 +256,9 @@ Position the cursor at its beginning, according to the current mode."
   :ensure org-plus-contrib
   :mode (("\\.org\\'" . org-mode))
   :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((scheme . t)))
   (setq org-hide-leading-stars t
 	org-ellipsis "⤵"))
 
