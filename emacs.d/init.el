@@ -105,6 +105,9 @@
 ;; please don't ring
 (setq ring-bell-function 'ignore)
 
+;; enable kill whole line with C-a C-k
+(setq kill-whole-line t)
+
 ;; don't show startup scene
 (setq inhibit-startup-screen t)
 
@@ -122,6 +125,9 @@
 
 ;; replace selected text on type
 (delete-selection-mode +1)
+
+;; use emacs build in window navigation facilities
+(windmove-default-keybindings)
 
 ;; show trailing whitespaces
 (setq show-trailing-whitespace t)
@@ -195,15 +201,24 @@ Position the cursor at its beginning, according to the current mode."
   (setq doom-themes-enable-bold       t
         doom-themes-enable-italic     t
         nlinum-highlight-current-line t)
-  (load-theme 'doom-tomorrow-night t))
+  (load-theme 'doom-oceanic-next t))
+
+;;; Go support
+(use-package go-mode
+  :ensure t
+  :mode (("\\.go\\'" . go-mode))
+  :hook ((before-save . gofmt-before-save))
+  :config
+  (setq gofmt-command "goimports"
+        gofmt-args ""))
 
 ;;; s-expression util
-(use-package paredit
+(use-package lispy
   :ensure t
-  :hook ((clojure-mode           . enable-paredit-mode)
-         (clojurescript-mode     . enable-paredit-mode)
-         (scheme-mode            . enable-paredit-mode)
-         (emacs-lisp-mode        . enable-paredit-mode)))
+  :hook ((clojure-mode           . lispy-mode)
+         (clojurescript-mode     . lipsy-mode)
+         (scheme-mode            . lipsy-mode)
+         (emacs-lisp-mode        . lispy-mode)))
 
 ;;; Clojure support
 (use-package clojure-mode
@@ -296,10 +311,12 @@ Position the cursor at its beginning, according to the current mode."
   :hook ((web-mode . (lambda () (setq web-mode-markup-indent-offset 2))))
   :config
   (setq web-mode-extra-auto-pairs '(("erb" . (("beg" "end"))))
-	web-mode-enable-css-colorization          t
-	web-mode-enable-current-column-highlight  t
-	web-mode-enable-current-element-highlight t
-	web-mode-code-indent-offset 2)
+        web-mode-enable-css-colorization          t
+        web-mode-enable-current-column-highlight  t
+        web-mode-enable-current-element-highlight t
+        web-mode-enable-auto-closing              t
+        web-mode-auto-close-style                 2
+        web-mode-code-indent-offset               2)
   :mode (("\\.html?\\'" . web-mode)
          ("\\.erb\\'"   . web-mode)
          ("\\.vue\\'"   . web-mode)))
