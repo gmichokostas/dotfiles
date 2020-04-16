@@ -60,9 +60,13 @@
 (add-to-list 'default-frame-alist '(font . "Iosevka Term-16"))
 
 ;; use italics in comments
+;; fix comments background issue in Org files
 (custom-set-faces
- '(font-lock-comment-face ((t (:slant italic))))
- '(font-lock-reference-face ((t (:slant italic))))
+ '(org-block                    ((t (:background nil))))
+ '(org-block-begin-line         ((t (:background nil))))
+ '(org-block-end-line           ((t (:background nil))))
+ '(font-lock-comment-face       ((t (:slant italic))))
+ '(font-lock-reference-face     ((t (:slant italic))))
  '(font-lock-function-name-face ((t (:slant italic)))))
 
 ;; disable auto-save and auto-backup
@@ -201,6 +205,9 @@ Position the cursor at its beginning, according to the current mode."
   (setq doom-themes-enable-bold       t
         doom-themes-enable-italic     t
         nlinum-highlight-current-line t)
+  (setq doom-oceanic-next-brighter-modeline t
+        doom-oceanic-next-brighter-comments t)
+  (doom-themes-org-config)
   (load-theme 'doom-oceanic-next t))
 
 ;;; Go support
@@ -215,10 +222,10 @@ Position the cursor at its beginning, according to the current mode."
 ;;; s-expression util
 (use-package lispy
   :ensure t
-  :hook ((clojure-mode           . lispy-mode)
-         (clojurescript-mode     . lipsy-mode)
-         (scheme-mode            . lipsy-mode)
-         (emacs-lisp-mode        . lispy-mode)))
+  :hook ((clojure-mode       . lispy-mode)
+         (clojurescript-mode . lipsy-mode)
+         (scheme-mode        . lipsy-mode)
+         (emacs-lisp-mode    . lispy-mode)))
 
 ;;; Clojure support
 (use-package clojure-mode
@@ -236,6 +243,7 @@ Position the cursor at its beginning, according to the current mode."
   :ensure t
   :hook ((clojure-mode    . rainbow-delimiters-mode)
          (cider-repl-mode . rainbow-delimiters-mode)
+         (geiser-mode     . rainbow-delimiters-mode)
          (emacs-lisp-mode . rainbow-delimiters-mode)))
 
 ;;; Git on steroids
