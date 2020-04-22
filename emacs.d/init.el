@@ -134,13 +134,16 @@
 (windmove-default-keybindings)
 
 ;; show trailing whitespaces
-(setq show-trailing-whitespace t)
+(setq-default show-trailing-whitespace t)
+
+;; Visually indicate empty lines after the buffer end.
+(setq-default indicate-empty-lines t)
 
 ;; move point to begging when double clicking
 (setq mouse-select-region-move-to-beginning t)
 
 ;; drag and drop selected regiong
-(setq  mouse-drag-and-drop-region t)
+(setq mouse-drag-and-drop-region t)
 
 ;; never use tabs
 (setq-default indent-tabs-mode nil)

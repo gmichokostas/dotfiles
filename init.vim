@@ -53,6 +53,7 @@ call plug#begin('~/.local/share/nvim/plugged')
 " Color settings
 Plug 'chriskempson/base16-vim'
 Plug 'itchyny/lightline.vim'
+Plug 'gruvbox-community/gruvbox'
 
 " Utils
 Plug 'airblade/vim-gitgutter'
@@ -66,7 +67,6 @@ Plug 'junegunn/goyo.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'machakann/vim-highlightedyank'
 Plug 'mattn/emmet-vim'
-Plug 'posva/vim-vue'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-endwise'
@@ -76,31 +76,28 @@ Plug 'tpope/vim-rails'
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
 Plug 'tpope/vim-salve',     { 'for': 'clojure' }
-Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
 
 " Languages support
 Plug 'othree/html5.vim'
 Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+Plug 'vim-ruby/vim-ruby',       { 'for': 'ruby' }
 Plug 'plasticboy/vim-markdown'
-Plug 'vim-ruby/vim-ruby', { 'for': 'ruby' }
 
 call plug#end()
 
 " Colors
-set background=dark
 set termguicolors
-if filereadable(expand("~/.vimrc_background"))
-  let base16colorspace=256
-  source ~/.vimrc_background
-endif
+let g:gruvbox_contrast_dark     = "hard"
+let g:gruvbox_italic            = 1
+let g:gruvbox_italicize_strings = 1
+let g:gruvbox_underline         = 1
+let g:gruvbox_invert_signs      = 1
+let g:gruvbox_improved_warnings = 1
 
-hi String          gui=italic   cterm=italic
-hi Function        gui=italic   cterm=italic
-hi Identifier      gui=italic   cterm=italic
-hi Operator        gui=italic   cterm=italic
-hi VertSplit       ctermbg=NONE guibg=NONE
-hi Comment         gui=italic   cterm=italic
+set background=dark
+colorscheme gruvbox
+
 hi ExtraWhitespace ctermbg=grey guibg=grey
 " Show trailing whitespace and spaces before a tab"
 match ExtraWhitespace /\s\+$\| \+\ze\t/
@@ -111,7 +108,7 @@ let g:gitgutter_map_keys          = 0
 
 " Lightline config
 let g:lightline = {
-      \ 'colorscheme': 'jellybeans',
+      \ 'colorscheme': 'gruvbox',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
       \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
@@ -135,7 +132,7 @@ let g:ale_linters = {
       \}
 
 " Ruby conf
-let g:ruby_indent_block_style = 'do'
+let g:ruby_indent_block_style      = 'do'
 let g:ruby_indent_assignment_style = 'variable'
 
 " goyo config
