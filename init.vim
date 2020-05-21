@@ -2,6 +2,7 @@ autocmd!
 
 nnoremap <space> <nop>
 let mapleader = "\<Space>"
+let maplocalleader = ","
 
 filetype indent plugin on " enable file type detection
 syntax enable             " enable syntax highlight
@@ -46,22 +47,23 @@ set spellfile=$HOME/.vim-spell-en.utf-8.add " location to save the 'good' words
 
 " Show hidden characters
 set nolist
-set listchars=nbsp:¬,extends:»,precedes:«,trail:•,space:.
+set listchars=eol:¬,trail:•,space:.,tab:->
 
 call plug#begin('~/.local/share/nvim/plugged')
 
 " Color settings
-Plug 'chriskempson/base16-vim'
 Plug 'itchyny/lightline.vim'
-Plug 'gruvbox-community/gruvbox'
+Plug 'sheerun/vim-polyglot'
+Plug 'arcticicestudio/nord-vim', { 'branch': 'develop' }
 
 " Utils
+Plug 'jiangmiao/auto-pairs'
 Plug 'airblade/vim-gitgutter'
 Plug 'airblade/vim-rooter'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'dense-analysis/ale'
 Plug 'janko-m/vim-test'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/vim-easy-align'
@@ -74,29 +76,45 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-rails'
 Plug 'tpope/vim-rhubarb'
-Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
-Plug 'tpope/vim-salve',     { 'for': 'clojure' }
 Plug 'tpope/vim-vinegar'
+Plug 'guns/vim-sexp',  {'for': 'clojure'}
+Plug 'Olical/conjure', {'tag': 'v3.2.0', 'for': 'clojure'}
 
 " Languages support
 Plug 'othree/html5.vim'
 Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 Plug 'vim-ruby/vim-ruby',       { 'for': 'ruby' }
+Plug 'fatih/vim-go',            { 'do': ':GoUpdateBinaries' }
 Plug 'plasticboy/vim-markdown'
 
 call plug#end()
 
 " Colors
 set termguicolors
-let g:gruvbox_contrast_dark     = "hard"
-let g:gruvbox_italic            = 1
-let g:gruvbox_italicize_strings = 1
-let g:gruvbox_underline         = 1
-let g:gruvbox_invert_signs      = 1
-let g:gruvbox_improved_warnings = 1
-
 set background=dark
-colorscheme gruvbox
+
+let g:nord_underline                     = 1
+let g:nord_italic_comments               = 1
+let g:nord_italic                        = 1
+let g:nord_bold                          = 1
+let g:nord_uniform_diff_background       = 1
+let g:nord_bold_vertical_split_line      = 0
+let g:nord_uniform_status_lines          = 1
+let g:nord_cursor_line_number_background = 1
+
+let ruby_operators    = 1
+let ruby_space_errors = 1
+
+augroup nord-theme-overrides
+  autocmd!
+  autocmd ColorScheme nord highlight rubyBlockParameterList guifg=#EBCB8B
+  autocmd ColorScheme nord highlight rubyInterpolationDelimiter guifg=#BF616A gui=italic
+  autocmd ColorScheme nord highlight rubyInterpolation guifg=#B48EAD gui=italic
+  autocmd ColorScheme nord highlight rubyDotOperator guifg=#8FBCBB
+  autocmd ColorScheme nord highlight rubyClassVariable gui=italic
+augroup END
+
+colorscheme nord
 
 hi ExtraWhitespace ctermbg=grey guibg=grey
 " Show trailing whitespace and spaces before a tab"
@@ -108,7 +126,7 @@ let g:gitgutter_map_keys          = 0
 
 " Lightline config
 let g:lightline = {
-      \ 'colorscheme': 'gruvbox',
+      \ 'colorscheme': 'nord',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
       \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
@@ -135,6 +153,13 @@ let g:ale_linters = {
 let g:ruby_indent_block_style      = 'do'
 let g:ruby_indent_assignment_style = 'variable'
 
+" Go conf
+let g:go_auto_type_info           = 1
+let g:go_imports_autosave         = 1
+let g:go_highlight_fields         = 1
+let g:go_highlight_functions      = 1
+let g:go_highlight_function_calls = 1
+
 " goyo config
 let g:goyo_width = 120
 
@@ -143,38 +168,32 @@ if has("persistent_undo")
   set undofile
 endif
 
-if executable('ag')
-  set grepprg=ag\ --nogroup\ --nocolor
-endif
-
-if executable('rg')
-  set grepprg=rg\ --no-heading\ --vimgrep
-  set grepformat=%f:%l:%c:%m
-endif
-
 command! -bang -nargs=* Rg
-      \ call fzf#vim#grep(
-      \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
-      \   <bang>0 ? fzf#vim#with_preview('up:60%')
-      \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-      \   <bang>0)
-
-" Command for git grep
-command! -bang -nargs=* GGrep
-      \ call fzf#vim#grep(
-      \   'git grep --line-number '.shellescape(<q-args>), 0,
-      \   { 'dir': systemlist('git rev-parse --show-toplevel')[0] }, <bang>0)
-
-" Command for Ag
-command! -bang -nargs=* Ag
-      \ call fzf#vim#ag(<q-args>,
-      \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-      \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
-      \                 <bang>0)
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
+  \   fzf#vim#with_preview(), <bang>0)
 
 " Files command with preview window
 command! -bang -nargs=? -complete=dir Files
-      \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+    \ call fzf#vim#files(<q-args>, fzf#vim#with_preview({'options': ['--layout=reverse', '--info=inline']}), <bang>0)
+
+function! FloatingFZF()
+  let width = float2nr(&columns * 0.9)
+  let height = float2nr(&lines * 0.6)
+  let opts = {
+        \ 'relative': 'editor',
+        \ 'row': (&lines - height) / 2,
+        \ 'col': (&columns - width) / 2,
+        \ 'width': width,
+        \ 'height': height,
+        \ 'style': 'minimal'
+        \}
+
+  let win = nvim_open_win(nvim_create_buf(v:false, v:true), v:true, opts)
+  call setwinvar(win, '&winhighlight', 'NormalFloat:TabLine')
+endfunction
+
+let g:fzf_layout = { 'window': 'call FloatingFZF()' }
 
 " vim-test strategy
 let test#strategy = "neovim"
