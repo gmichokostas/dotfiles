@@ -69,6 +69,7 @@ Plug 'junegunn/goyo.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'machakann/vim-highlightedyank'
 Plug 'mattn/emmet-vim'
+Plug 'ap/vim-css-color'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-endwise'
@@ -78,13 +79,13 @@ Plug 'tpope/vim-rails'
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-vinegar'
 Plug 'guns/vim-sexp',  {'for': 'clojure'}
-Plug 'Olical/conjure', {'tag': 'v3.2.0', 'for': 'clojure'}
+Plug 'Olical/conjure', {'tag': 'v3.4.0', 'for': 'clojure'}
 
 " Languages support
 Plug 'othree/html5.vim'
 Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 Plug 'vim-ruby/vim-ruby',       { 'for': 'ruby' }
-Plug 'fatih/vim-go',            { 'do': ':GoUpdateBinaries' }
+" Plug 'fatih/vim-go',            { 'do': ':GoUpdateBinaries' }
 Plug 'plasticboy/vim-markdown'
 
 call plug#end()
@@ -108,8 +109,10 @@ let ruby_space_errors = 1
 augroup nord-theme-overrides
   autocmd!
   autocmd ColorScheme nord highlight rubyBlockParameterList guifg=#EBCB8B
+  autocmd ColorScheme nord highlight rubyBracketOperator guifg=#EBCB8B
   autocmd ColorScheme nord highlight rubyInterpolationDelimiter guifg=#BF616A gui=italic
   autocmd ColorScheme nord highlight rubyInterpolation guifg=#B48EAD gui=italic
+  autocmd ColorScheme nord highlight rubySymbol guifg=#B48EAD gui=bold
   autocmd ColorScheme nord highlight rubyDotOperator guifg=#8FBCBB
   autocmd ColorScheme nord highlight rubyClassVariable gui=italic
 augroup END
