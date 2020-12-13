@@ -1,31 +1,5 @@
 ;;; -*- lexical-binding: t; -*-
 
-(defvar file-name-handler-alist-old file-name-handler-alist)
-
-(setq package-enable-at-startup nil
-      file-name-handler-alist   nil
-      gc-cons-threshold         most-positive-fixnum
-      gc-cons-percentage        0.8
-      auto-window-vscroll       nil)
-
-(add-hook 'after-init-hook
-          `(lambda ()
-             (setq file-name-handler-alist file-name-handler-alist-old
-                   gc-cons-threshold       16777216
-                   gc-cons-percentage      0.1)
-             (garbage-collect)) t)
-
-(defun ym/defer-garbage-collection-h ()
-  (setq gc-cons-threshold most-positive-fixnum))
-
-(defun ym/restore-garbage-collection-h ()
-  "Defer it so that commands launched immediately after will enjoy the benefits."
-  (run-at-time
-   1 nil (lambda () (setq gc-cons-threshold 16777216))))
-
-(add-hook 'minibuffer-setup-hook #'ym/defer-garbage-collection-h)
-(add-hook 'minibuffer-exit-hook  #'ym/restore-garbage-collection-h)
-
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
 
@@ -35,20 +9,17 @@
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                            ("gnu"   . "https://elpa.gnu.org/packages/")
                            ("org"   . "https://orgmode.org/elpa/")))
-  (package-initialize)
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
-    (package-install 'use-package))
-  (require 'use-package)
-  (setf use-package-always-ensure t))
+    (package-install 'use-package)))
+
+(eval-when-compile (require 'use-package))
+
+;; set default font
+(push '(font . "Inconsolata 16") default-frame-alist)
 
 ;; macOS config
-(when (and (eq system-type 'darwin)
-	   (display-graphic-p))
-  ;; titlebar for macOS
-  (add-to-list 'default-frame-alist '(ns-appearance . dark))
-  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-  (require 'ls-lisp)
+(when (eq system-type 'darwin)
   ;; swap meta and hyper positions for macOS
   (setq mac-option-modifier   'super
         mac-command-modifier  'meta
@@ -56,18 +27,15 @@
 	ns-use-thin-smoothing t
 	dired-use-ls-dired    nil))
 
-;; set default font
-(add-to-list 'default-frame-alist '(font . "Iosevka Term-16"))
-
 ;; use italics in comments
 ;; fix comments background issue in Org files
 (custom-set-faces
- '(org-block                    ((t (:background nil))))
- '(org-block-begin-line         ((t (:background nil))))
- '(org-block-end-line           ((t (:background nil))))
- '(font-lock-comment-face       ((t (:slant italic))))
- '(font-lock-reference-face     ((t (:slant italic))))
- '(font-lock-function-name-face ((t (:slant italic)))))
+ '(font-lock-comment-face   ((t (:slant italic))))
+ '(font-lock-reference-face ((t (:slant italic))))
+ '(hl-line                  ((t (:inherit nil :background "gray6"))))
+ '(org-block                ((t (:background nil))))
+ '(org-block-begin-line     ((t (:background nil))))
+ '(org-block-end-line       ((t (:background nil)))))
 
 ;; disable auto-save and auto-backup
 (setq auto-save-default nil
@@ -86,14 +54,6 @@
 ;; get matching delimiters
 (add-hook 'prog-mode-hook 'electric-pair-mode)
 
-;; line numbers config
-;;; show line numbers in prog mode
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
-
-(setq column-number-mode             t     ; show lin-number/column combo
-      display-line-numbers-grow-only t     ; dont resize line number column when we go to smaller line number
-      display-line-numbers-type 'relative) ; line number type is relative to mark
-
 ;; always add a new line at the EOF
 (setq require-final-newline t)
 
@@ -102,6 +62,12 @@
 
 ;; reload file when it has changed in the disk
 (global-auto-revert-mode 1)
+
+;; Start find-file etc in home directory
+(setq default-directory "~/")
+
+;; Show file's full path on frame
+(setq-default frame-title-format "%b (%f)")
 
 ;; disable scratch message
 (setq initial-scratch-message "")
@@ -115,29 +81,18 @@
 ;; don't show startup scene
 (setq inhibit-startup-screen t)
 
-;; hide the toolbar
-(tool-bar-mode -1)
-
-;; hide the scroll bar
-(scroll-bar-mode -1)
-
 ;; show matching parens
+(setq show-paren-delay 0)
 (show-paren-mode)
 
 ;; highlight the current line
-(global-hl-line-mode t)
+(add-hook 'prog-mode-hook #'hl-line-mode)
 
 ;; replace selected text on type
-(delete-selection-mode +1)
-
-;; use emacs build in window navigation facilities
-(windmove-default-keybindings)
+(delete-selection-mode 1)
 
 ;; show trailing whitespaces
 (setq-default show-trailing-whitespace t)
-
-;; Visually indicate empty lines after the buffer end.
-(setq-default indicate-empty-lines t)
 
 ;; move point to begging when double clicking
 (setq mouse-select-region-move-to-beginning t)
@@ -180,47 +135,21 @@ Position the cursor at its beginning, according to the current mode."
 
 (global-set-key (kbd "C-c u") 'ym/upcase-word)
 
-;;; config pseudo-modal editing
-(use-package view
-  :ensure nil
-  :init
-  (setq-default cursor-type 'box)
-  :hook ((view-mode . ym/set-cursor-type))
-  :bind (("C-x C-q" . view-mode)
-	 :map view-mode-map
-         ("a"   . move-beginning-of-line)
-         ("e"   . move-end-of-line)
-         ("p"   . previous-line)
-         ("n"   . next-line)
-         ("f"   . forward-char)
-         ("b"   . backward-char)
-         ("v"   . scroll-up-command)
-         ("SPC" . scroll-down-command))
-  :config
-  (setq view-read-only t)
-  (defun ym/set-cursor-type ()
-    (setq cursor-type (if view-mode 'box 'bar))))
+;;;; colorize output in compile buffer
+;; don't show ANSI escape sequences in compile buffer
+(require 'ansi-color)
 
-;;; set the colorscheme
-(use-package doom-themes
-  :ensure t
-  :config
-  (setq doom-themes-enable-bold       t
-        doom-themes-enable-italic     t
-        nlinum-highlight-current-line t)
-  (setq doom-oceanic-next-brighter-modeline t
-        doom-oceanic-next-brighter-comments t)
-  (doom-themes-org-config)
-  (load-theme 'doom-oceanic-next t))
+(defun colorize-compilation-buffer ()
+  (ansi-color-apply-on-region compilation-filter-start (point)))
 
-;;; Go support
-(use-package go-mode
+(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+
+(use-package exec-path-from-shell
   :ensure t
-  :mode (("\\.go\\'" . go-mode))
-  :hook ((before-save . gofmt-before-save))
+  :if (memq window-system '(mac ns))
   :config
-  (setq gofmt-command "goimports"
-        gofmt-args ""))
+  (setq exec-path-from-shell-variables '("PATH"))
+  (exec-path-from-shell-initialize))
 
 ;;; s-expression util
 (use-package lispy
@@ -237,6 +166,20 @@ Position the cursor at its beginning, according to the current mode."
          ("\\.edn\\'"  . clojure-mode)
          ("\\.cljs\\'" . clojurescript-mode)))
 
+(use-package elixir-mode :ensure t)
+
+(use-package flymake
+  :ensure nil
+  :bind (([f8] . flymake-goto-next-error)
+         ([f7] . flymake-goto-prev-error))
+  :hook ((ruby-mode    . (lambda () (flymake-mode t)))
+         (clojure-mode . (lambda () (flymake-mode t))))
+  :config (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake))
+
+(use-package flymake-kondor
+  :ensure t
+  :hook (clojure-mode . flymake-kondor-setup))
+
 (use-package cider
   :ensure t
   :defer t
@@ -252,16 +195,10 @@ Position the cursor at its beginning, according to the current mode."
 ;;; Git on steroids
 (use-package magit
   :ensure t
+  :defer 1
   :bind (("C-x g" . magit-status))
   :config
   (setq magit-completing-read-function 'ivy-completing-read))
-
-(use-package exec-path-from-shell
-  :ensure t
-  :defer 1
-  :config
-  (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize)))
 
 ;;; window management
 (use-package eyebrowse
@@ -347,55 +284,59 @@ Position the cursor at its beginning, according to the current mode."
   :mode (("\\.yml\\'"  . yaml-mode)
          ("\\.yaml\\'" . yaml-mode)))
 
-(use-package ivy
+(use-package browse-at-remote
   :ensure t
-  :defer 1
-  :bind (("C-c C-r" . ivy-resume))
+  :defer 1)
+
+(use-package icomplete-vertical
+  :ensure t
+  :demand t
+  :custom
+  (completion-styles '(partial-completion substring flex initials))
+  (completion-category-overrides '((file (styles basic substring))))
+  (read-file-name-completion-ignore-case t)
+  (read-buffer-completion-ignore-case t)
+  (completion-ignore-case t)
   :config
-  (setq ivy-use-virtual-buffers      t
-	ivy-count-format             "(%d/%d) "
-        enable-recursive-minibuffers t)
-  (ivy-mode 1))
+  (icomplete-mode)
+  (icomplete-vertical-mode)
+  (defun minibuffer-try-complete-and-exit ()
+    (interactive)
+    (minibuffer-force-complete)
+    (setq-local deactivate-mark nil)
+    (throw 'exit nil))
+  :bind (:map icomplete-minibuffer-map
+              ([return] . minibuffer-try-complete-and-exit)
+              ("<down>" . icomplete-forward-completions)
+              ("C-n"    . icomplete-forward-completions)
+              ("<up>"   . icomplete-backward-completions)
+              ("C-p"    . icomplete-backward-completions)
+              ("C-v"    . icomplete-vertical-toggle)))
 
-(use-package counsel
+(use-package expand-region
   :ensure t
-  :after ivy
-  :bind(("M-x"     . counsel-M-x)
-        ("C-c l"   . counsel-semantic-or-imenu)
-        ("C-x C-f" . counsel-find-file)
-        ("<f1> f"  . counsel-describe-function)
-        ("<f1> v"  . counsel-describe-variable)
-        ("<f1> l"  . counsel-find-library)
-        ("<f2> i"  . counsel-info-lookup-symbol)
-        ("<f2> u"  . counsel-unicode-char)
-        ("C-c g"   . counsel-git)
-        ("C-c j"   . counsel-git-grep)
-        ("C-c a"   . counsel-ag)
-        ("C-x l"   . counsel-locate)
-        ("C-c k"   . counsel-rg)
-        ("C-c n"   . counsel-fzf))
+  :bind ("C-=" . 'er/expand-region))
+
+(use-package vterm
+  :ensure t
   :config
-  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
+  (setq vterm-kill-buffer-on-exit t))
 
-(use-package avy
+(use-package ruby-test-mode
   :ensure t
-  :bind (("C-;"   . avy-goto-char-2)
-         ("M-g f" . avy-goto-line)
-         ("M-g w" . avy-goto-word-1)))
+  :bind (("C-c f" . 'ruby-test-run)
+         ("C-c n" . 'ruby-test-run-at-point)
+         ("C-c a" . 'ruby-test-toggle-implementation-and-specification))
+  :mode (("\\.rb\\'" . ruby-mode)))
 
-(use-package swiper
+(use-package sql-indent
   :ensure t
-  :after avy
-  :bind (("C-s" . swiper)))
+  :hook ((sql-mode . sqlind-minor-mode)))
 
-;;; project utility
-(use-package projectile
-  :ensure t
-  :defer 1
+(use-package project :ensure t)
+
+(use-package emacs
+  :ensure nil
   :config
-  (define-key projectile-mode-map (kbd "s-p")   'projectile-command-map)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (setq projectile-create-missing-test-files t
-	projectile-project-search-path '("~/Code")
-	projectile-completion-system 'ivy)
-  (projectile-mode +1))
+  (setq diff-font-lock-prettify t)
+  (load-theme 'wombat))
