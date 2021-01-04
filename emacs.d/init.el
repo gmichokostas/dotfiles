@@ -1,7 +1,29 @@
 ;;; -*- lexical-binding: t; -*-
 
+(add-hook 'after-init-hook
+          `(lambda ()
+             (setq file-name-handler-alist file-name-handler-alist-old
+                   gc-cons-threshold       16777216
+                   gc-cons-percentage      0.1)
+             (garbage-collect)) t)
+
+;; Profile emacs startup
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "*** Emacs loaded in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
+
+(defun ym/restore-garbage-collection-h ()
+  "Defer it so that commands launched immediately after will enjoy the benefits."
+  (run-at-time
+   1 nil (lambda () (setq gc-cons-threshold 16777216))))
+
+(add-hook 'minibuffer-exit-hook  #'ym/restore-garbage-collection-h)
+
 (setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
 
 ;; setup use-package
 (eval-and-compile
@@ -32,7 +54,6 @@
 (custom-set-faces
  '(font-lock-comment-face   ((t (:slant italic))))
  '(font-lock-reference-face ((t (:slant italic))))
- '(hl-line                  ((t (:inherit nil :background "gray6"))))
  '(org-block                ((t (:background nil))))
  '(org-block-begin-line     ((t (:background nil))))
  '(org-block-end-line       ((t (:background nil)))))
@@ -85,7 +106,10 @@
 (setq show-paren-delay 0)
 (show-paren-mode)
 
-;; highlight the current line
+;; show current column
+(setq column-number-mode t)
+
+;; Highlight the current line
 (add-hook 'prog-mode-hook #'hl-line-mode)
 
 ;; replace selected text on type
@@ -144,11 +168,17 @@ Position the cursor at its beginning, according to the current mode."
 
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 
+(use-package go-mode
+  :ensure t
+  :hook ((before-save . gofmt-before-save))
+  :mode ("\\.go\\'" . go-mode))
+
 (use-package exec-path-from-shell
   :ensure t
   :if (memq window-system '(mac ns))
   :config
-  (setq exec-path-from-shell-variables '("PATH"))
+  (setq exec-path-from-shell-variables '("PATH")
+        exec-path-from-shell-arguments nil)
   (exec-path-from-shell-initialize))
 
 ;;; s-expression util
@@ -172,8 +202,8 @@ Position the cursor at its beginning, according to the current mode."
   :ensure nil
   :bind (([f8] . flymake-goto-next-error)
          ([f7] . flymake-goto-prev-error))
-  :hook ((ruby-mode    . (lambda () (flymake-mode t)))
-         (clojure-mode . (lambda () (flymake-mode t))))
+  :hook ((ruby-mode    . flymake-mode)
+         (clojure-mode . flymake-mode))
   :config (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake))
 
 (use-package flymake-kondor
@@ -199,15 +229,6 @@ Position the cursor at its beginning, according to the current mode."
   :bind (("C-x g" . magit-status))
   :config
   (setq magit-completing-read-function 'ivy-completing-read))
-
-;;; window management
-(use-package eyebrowse
-  :ensure t
-  :config
-  (setq eyebrowse-mode-line-separator " "
-        eyebrowse-new-workspace       t)
-  (eyebrowse-setup-opinionated-keys)
-  (eyebrowse-mode t))
 
 ;;; handy tool for http requests
 (use-package restclient
@@ -322,11 +343,21 @@ Position the cursor at its beginning, according to the current mode."
   :config
   (setq vterm-kill-buffer-on-exit t))
 
+(use-package ruby-mode
+  :config
+  (setq ruby-align-to-stmt-keywords t
+        ruby-align-chained-calls    t
+        ruby-flymake-use-rubocop-if-available nil))
+
 (use-package ruby-test-mode
   :ensure t
   :bind (("C-c f" . 'ruby-test-run)
          ("C-c n" . 'ruby-test-run-at-point)
          ("C-c a" . 'ruby-test-toggle-implementation-and-specification))
+  :mode (("\\.rb\\'" . ruby-mode)))
+
+(use-package ruby-end
+  :ensure t
   :mode (("\\.rb\\'" . ruby-mode)))
 
 (use-package sql-indent
@@ -338,5 +369,24 @@ Position the cursor at its beginning, according to the current mode."
 (use-package emacs
   :ensure nil
   :config
-  (setq diff-font-lock-prettify t)
-  (load-theme 'wombat))
+  (setq diff-font-lock-prettify t))
+
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-opera t))
+
+(use-package tab-bar
+  :init
+  :config
+  (setq tab-bar-new-tab-choice       "*scratch*"
+        tab-bar-new-tab-to           'right
+        tab-bar-select-tab-modifiers (list 'meta)))
+
+(defun current-tab-index ()
+  (if (bound-and-true-p tab-bar-mode)
+      (format "[%s]" (number-to-string (+ 1 (tab-bar--current-tab-index))))))
+
+(setq-default mode-line-format
+              (append mode-line-format
+                      '((:eval (current-tab-index)))))
